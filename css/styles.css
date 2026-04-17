@@ -103,6 +103,16 @@ a:hover {
   padding: 2rem 0;
 }
 
+/* プライバシー説明 */
+.privacy-notice {
+  background-color: var(--color-bg-secondary);
+  border-top: 1px solid var(--color-border);
+  padding: 0.75rem 0;
+  text-align: center;
+  color: var(--color-success);
+  font-size: 0.8rem;
+}
+
 /* フッター */
 .footer {
   background-color: var(--color-bg-secondary);
