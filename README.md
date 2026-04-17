@@ -60,8 +60,24 @@
 ## デプロイ
 
 AWS S3にファイルをアップロードし、CloudFrontで配信。
+
 ```bash
-aws s3 sync . s3://[バケット名] --exclude ".git/*" --exclude "README.md"
+# HTML, JS, CSSはno-cache
+aws s3 sync . s3://dev-tools-site \
+  --exclude "*" --include "*.html" --include "*.js" --include "*.css" \
+  --exclude ".git/*" --exclude "README.md" \
+  --cache-control "no-cache"
+
+# それ以外（画像など）はキャッシュ有効（1日）
+aws s3 sync . s3://dev-tools-site \
+  --exclude "*.html" --exclude "*.js" --exclude "*.css" \
+  --exclude ".git/*" --exclude "README.md" \
+  --cache-control "max-age=86400"
+
+# CloudFrontインバリデーション
+aws cloudfront create-invalidation \
+  --distribution-id E2ME0SJ8M2SVKD \
+  --paths "/*" "/"
 ```
 
 ## 開発ログ
