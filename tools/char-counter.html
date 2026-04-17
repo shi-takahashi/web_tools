@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="テキストの文字数、行数、バイト数をリアルタイムでカウントするオンラインツール。">
+  <meta name="keywords" content="文字数カウント,文字数,行数,バイト数,テキスト,オンラインツール">
+  <title>文字数カウンター - Web Tools</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    .counter-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .counter-card {
+      background-color: var(--color-bg-secondary);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .counter-card__value {
+      font-size: 2rem;
+      font-weight: bold;
+      color: var(--color-primary);
+      line-height: 1.2;
+    }
+
+    .counter-card__label {
+      font-size: 0.875rem;
+      color: var(--color-text-secondary);
+      margin-top: 0.25rem;
+    }
+
+    .input-textarea {
+      min-height: 300px;
+      font-size: 1rem;
+      line-height: 1.8;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container header__inner">
+      <a href="/" class="header__logo">Web Tools</a>
+      <nav class="header__nav" aria-label="メインナビゲーション">
+        <a href="/">ホーム</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="container">
+      <div class="tool-header">
+        <h1 class="tool-header__title">文字数カウンター</h1>
+        <p class="tool-header__description">テキストの文字数、行数、バイト数をリアルタイムでカウントします。</p>
+      </div>
+
+      <div class="counter-grid">
+        <div class="counter-card">
+          <div class="counter-card__value" id="charCount">0</div>
+          <div class="counter-card__label">文字数</div>
+        </div>
+        <div class="counter-card">
+          <div class="counter-card__value" id="charNoSpaceCount">0</div>
+          <div class="counter-card__label">文字数（空白除く）</div>
+        </div>
+        <div class="counter-card">
+          <div class="counter-card__value" id="lineCount">0</div>
+          <div class="counter-card__label">行数</div>
+        </div>
+        <div class="counter-card">
+          <div class="counter-card__value" id="paragraphCount">0</div>
+          <div class="counter-card__label">段落数</div>
+        </div>
+        <div class="counter-card">
+          <div class="counter-card__value" id="byteCount">0</div>
+          <div class="counter-card__label">バイト数（UTF-8）</div>
+        </div>
+      </div>
+
+      <div class="btn-group mb-2">
+        <button type="button" class="btn btn--secondary" id="copyBtn">テキストをコピー</button>
+        <button type="button" class="btn btn--secondary" id="clearBtn">クリア</button>
+      </div>
+
+      <textarea
+        id="textInput"
+        class="form-textarea input-textarea"
+        placeholder="ここにテキストを入力..."
+        aria-label="テキスト入力"
+      ></textarea>
+
+      <section class="mt-3">
+        <h2 class="mb-1">カウント項目</h2>
+        <ul>
+          <li><strong>文字数:</strong> すべての文字（空白・改行含む）</li>
+          <li><strong>文字数（空白除く）:</strong> スペース・タブ・改行を除いた文字数</li>
+          <li><strong>行数:</strong> 改行で区切られた行の数</li>
+          <li><strong>段落数:</strong> 空行で区切られた段落の数</li>
+          <li><strong>バイト数:</strong> UTF-8エンコードでのバイト数</li>
+        </ul>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2026 Web Tools. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    const textInput = document.getElementById('textInput');
+    const charCount = document.getElementById('charCount');
+    const charNoSpaceCount = document.getElementById('charNoSpaceCount');
+    const lineCount = document.getElementById('lineCount');
+    const paragraphCount = document.getElementById('paragraphCount');
+    const byteCount = document.getElementById('byteCount');
+    const copyBtn = document.getElementById('copyBtn');
+    const clearBtn = document.getElementById('clearBtn');
+
+    function countText() {
+      const text = textInput.value;
+
+      // 文字数
+      charCount.textContent = text.length;
+
+      // 文字数（空白除く）
+      const noSpace = text.replace(/\s/g, '');
+      charNoSpaceCount.textContent = noSpace.length;
+
+      // 行数
+      if (text === '') {
+        lineCount.textContent = 0;
+      } else {
+        lineCount.textContent = text.split('\n').length;
+      }
+
+      // 段落数（空行で区切る）
+      if (text.trim() === '') {
+        paragraphCount.textContent = 0;
+      } else {
+        const paragraphs = text.split(/\n\s*\n/).filter(p => p.trim() !== '');
+        paragraphCount.textContent = paragraphs.length;
+      }
+
+      // バイト数（UTF-8）
+      const encoder = new TextEncoder();
+      byteCount.textContent = encoder.encode(text).length;
+    }
+
+    async function copyToClipboard() {
+      const text = textInput.value;
+
+      if (!text) {
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch (e) {
+        // コピー失敗時は何もしない
+      }
+    }
+
+    function clearText() {
+      textInput.value = '';
+      countText();
+    }
+
+    // イベントリスナー
+    textInput.addEventListener('input', countText);
+    copyBtn.addEventListener('click', copyToClipboard);
+    clearBtn.addEventListener('click', clearText);
+
+    // 初期カウント
+    countText();
+  </script>
+</body>
+</html>

@@ -36,11 +36,11 @@
 
 ### 実装済み
 1. **JSONフォーマッター** (`tools/json-formatter.html`) - JSONの整形・検証・圧縮ツール
+2. **Base64エンコーダー/デコーダー** (`tools/base64.html`) - テキストのBase64エンコード・デコード（日本語対応）
+3. **文字数カウンター** (`tools/char-counter.html`) - 文字数・行数・バイト数をリアルタイムカウント
 
 ### 実装予定
-1. Base64エンコーダー/デコーダー
-2. 文字数カウンター
-3. （随時追加）
+（随時追加）
 
 ## 新しいツールを追加する手順
 
@@ -92,3 +92,5 @@ aws cloudfront create-invalidation \
   - 共通CSS (`css/styles.css`) - ダークモード対応、レスポンシブ対応
   - トップページ (`index.html`) - ツール一覧表示
   - JSONフォーマッター (`tools/json-formatter.html`) - 整形・圧縮・検証機能
+  - Base64エンコーダー/デコーダー (`tools/base64.html`) - UTF-8対応
+  - 文字数カウンター (`tools/char-counter.html`) - リアルタイムカウント
