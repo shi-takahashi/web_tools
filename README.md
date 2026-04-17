@@ -46,9 +46,11 @@
 
 1. `tools/` ディレクトリに新しいHTMLファイルを作成
 2. 共通CSSを読み込む: `<link rel="stylesheet" href="../css/styles.css">`
-3. SEO用のmeta タグを設定（title, description, keywords）
-4. `index.html` のツール一覧に追加
-5. このREADMEの「実装済み」セクションを更新
+3. 共通JSを読み込む: `<script src="../js/common.js"></script>`（`</body>`の前に）
+4. SEO用のmeta タグを設定（title, description, keywords）
+5. `index.html` のツール一覧に追加
+6. `sitemap.xml` に新しいURLを追加
+7. このREADMEの「実装済み」セクションを更新
 
 ## 共通デザインガイドライン
 
@@ -62,15 +64,15 @@
 AWS S3にファイルをアップロードし、CloudFrontで配信。
 
 ```bash
-# HTML, JS, CSSはno-cache
+# HTML, JS, CSS, XMLはno-cache
 aws s3 sync . s3://dev-tools-site \
-  --exclude "*" --include "*.html" --include "*.js" --include "*.css" \
+  --exclude "*" --include "*.html" --include "*.js" --include "*.css" --include "*.xml" \
   --exclude ".git/*" --exclude "README.md" \
   --cache-control "no-cache"
 
 # それ以外（画像など）はキャッシュ有効（1日）
 aws s3 sync . s3://dev-tools-site \
-  --exclude "*.html" --exclude "*.js" --exclude "*.css" \
+  --exclude "*.html" --exclude "*.js" --exclude "*.css" --exclude "*.xml" \
   --exclude ".git/*" --exclude "README.md" \
   --cache-control "max-age=86400"
 
