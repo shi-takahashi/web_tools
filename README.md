@@ -96,3 +96,6 @@ aws cloudfront create-invalidation \
   - JSONフォーマッター (`tools/json-formatter.html`) - 整形・圧縮・検証機能
   - Base64エンコーダー/デコーダー (`tools/base64.html`) - UTF-8対応
   - 文字数カウンター (`tools/char-counter.html`) - リアルタイムカウント
+  - 共通JS (`js/common.js`) - プライバシー説明、Google Analytics
+  - SEO対策: sitemap.xml、robots.txt作成、Google Search Console登録
+  - アクセス解析: Google Analytics (GA4) 導入
