@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="JSONの整形・検証・圧縮ができるオンラインツール。シンタックスエラーの検出、インデント調整が可能です。">
+  <meta name="keywords" content="JSON,フォーマッター,整形,検証,バリデーション,圧縮,minify,prettify">
+  <title>JSON フォーマッター - Web Tools</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    .tool-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .tool-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .panel__title {
+      font-weight: 500;
+    }
+
+    .panel__textarea {
+      flex: 1;
+      min-height: 400px;
+      font-family: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, monospace;
+      font-size: 0.875rem;
+      line-height: 1.5;
+      resize: vertical;
+    }
+
+    .options {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .options__label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+    }
+
+    .options__select {
+      padding: 0.25rem 0.5rem;
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      font-size: 0.875rem;
+    }
+
+    .status {
+      padding: 0.5rem 0.75rem;
+      border-radius: 4px;
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+    }
+
+    .status--valid {
+      background-color: rgba(34, 197, 94, 0.1);
+      color: var(--color-success);
+    }
+
+    .status--invalid {
+      background-color: rgba(239, 68, 68, 0.1);
+      color: var(--color-error);
+    }
+
+    .status--empty {
+      background-color: var(--color-bg-secondary);
+      color: var(--color-text-secondary);
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container header__inner">
+      <a href="/" class="header__logo">Web Tools</a>
+      <nav class="header__nav" aria-label="メインナビゲーション">
+        <a href="/">ホーム</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="container">
+      <div class="tool-header">
+        <h1 class="tool-header__title">JSON フォーマッター</h1>
+        <p class="tool-header__description">JSONの整形・検証・圧縮ができるツールです。</p>
+      </div>
+
+      <div class="btn-group mb-2">
+        <button type="button" class="btn btn--primary" id="formatBtn">整形する</button>
+        <button type="button" class="btn btn--secondary" id="minifyBtn">圧縮する</button>
+        <button type="button" class="btn btn--secondary" id="copyBtn">コピー</button>
+        <button type="button" class="btn btn--secondary" id="clearBtn">クリア</button>
+      </div>
+
+      <div class="options mb-2">
+        <label class="options__label">
+          インデント:
+          <select id="indentSize" class="options__select">
+            <option value="2">2スペース</option>
+            <option value="4">4スペース</option>
+            <option value="tab">タブ</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="tool-layout">
+        <div class="panel">
+          <div class="panel__header">
+            <span class="panel__title">入力</span>
+          </div>
+          <textarea
+            id="inputJson"
+            class="form-textarea panel__textarea"
+            placeholder="ここにJSONを入力してください..."
+            aria-label="JSON入力"
+          ></textarea>
+        </div>
+
+        <div class="panel">
+          <div class="panel__header">
+            <span class="panel__title">出力</span>
+          </div>
+          <textarea
+            id="outputJson"
+            class="form-textarea panel__textarea"
+            placeholder="整形されたJSONがここに表示されます"
+            readonly
+            aria-label="JSON出力"
+          ></textarea>
+        </div>
+      </div>
+
+      <div id="status" class="status status--empty">JSONを入力してください</div>
+
+      <section class="mt-3">
+        <h2 class="mb-1">使い方</h2>
+        <ol>
+          <li>左側のテキストエリアにJSONを入力またはペーストします</li>
+          <li>「整形する」ボタンをクリックすると、見やすく整形されます</li>
+          <li>「圧縮する」ボタンをクリックすると、改行やスペースを除去します</li>
+          <li>「コピー」ボタンで出力結果をクリップボードにコピーできます</li>
+        </ol>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2026 Web Tools. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    const inputJson = document.getElementById('inputJson');
+    const outputJson = document.getElementById('outputJson');
+    const status = document.getElementById('status');
+    const indentSize = document.getElementById('indentSize');
+    const formatBtn = document.getElementById('formatBtn');
+    const minifyBtn = document.getElementById('minifyBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const clearBtn = document.getElementById('clearBtn');
+
+    function getIndent() {
+      const value = indentSize.value;
+      return value === 'tab' ? '\t' : parseInt(value, 10);
+    }
+
+    function setStatus(type, message) {
+      status.className = 'status';
+      if (type === 'valid') {
+        status.classList.add('status--valid');
+      } else if (type === 'invalid') {
+        status.classList.add('status--invalid');
+      } else {
+        status.classList.add('status--empty');
+      }
+      status.textContent = message;
+    }
+
+    function formatJson() {
+      const input = inputJson.value.trim();
+
+      if (!input) {
+        outputJson.value = '';
+        setStatus('empty', 'JSONを入力してください');
+        return;
+      }
+
+      try {
+        const parsed = JSON.parse(input);
+        const formatted = JSON.stringify(parsed, null, getIndent());
+        outputJson.value = formatted;
+        setStatus('valid', '有効なJSONです');
+      } catch (e) {
+        outputJson.value = '';
+        setStatus('invalid', 'エラー: ' + e.message);
+      }
+    }
+
+    function minifyJson() {
+      const input = inputJson.value.trim();
+
+      if (!input) {
+        outputJson.value = '';
+        setStatus('empty', 'JSONを入力してください');
+        return;
+      }
+
+      try {
+        const parsed = JSON.parse(input);
+        const minified = JSON.stringify(parsed);
+        outputJson.value = minified;
+        setStatus('valid', '圧縮しました');
+      } catch (e) {
+        outputJson.value = '';
+        setStatus('invalid', 'エラー: ' + e.message);
+      }
+    }
+
+    async function copyToClipboard() {
+      const output = outputJson.value;
+
+      if (!output) {
+        setStatus('empty', 'コピーする内容がありません');
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(output);
+        setStatus('valid', 'クリップボードにコピーしました');
+      } catch (e) {
+        setStatus('invalid', 'コピーに失敗しました');
+      }
+    }
+
+    function clearAll() {
+      inputJson.value = '';
+      outputJson.value = '';
+      setStatus('empty', 'JSONを入力してください');
+    }
+
+    // イベントリスナー
+    formatBtn.addEventListener('click', formatJson);
+    minifyBtn.addEventListener('click', minifyJson);
+    copyBtn.addEventListener('click', copyToClipboard);
+    clearBtn.addEventListener('click', clearAll);
+
+    // リアルタイム検証（入力中）
+    inputJson.addEventListener('input', () => {
+      const input = inputJson.value.trim();
+
+      if (!input) {
+        setStatus('empty', 'JSONを入力してください');
+        return;
+      }
+
+      try {
+        JSON.parse(input);
+        setStatus('valid', '有効なJSONです');
+      } catch (e) {
+        setStatus('invalid', 'エラー: ' + e.message);
+      }
+    });
+  </script>
+</body>
+</html>
