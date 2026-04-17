@@ -1,6 +1,17 @@
 // 共通JavaScript
 
 (function() {
+  // Google Analytics
+  const GA_ID = 'G-PQ1RM31LSQ';
+  const script = document.createElement('script');
+  script.async = true;
+  script.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
+  document.head.appendChild(script);
+
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', GA_ID);
   // プライバシー説明を挿入
   function insertPrivacyNotice() {
     const footer = document.querySelector('.footer');
