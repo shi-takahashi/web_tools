@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="画像のサイズ（幅・高さ）を変更するオンラインツール。アスペクト比維持、拡大・縮小対応。ブラウザ内で処理するため安全。">
+  <meta name="keywords" content="画像リサイズ,サイズ変更,拡大,縮小,リサイズ,画像編集">
+  <title>画像リサイズ - Web Tools</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    .upload-area {
+      border: 2px dashed var(--color-border);
+      border-radius: 8px;
+      padding: 3rem 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background-color 0.2s;
+      margin-bottom: 1.5rem;
+    }
+
+    .upload-area:hover,
+    .upload-area--dragover {
+      border-color: var(--color-primary);
+      background-color: rgba(59, 130, 246, 0.05);
+    }
+
+    .upload-area__icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    .upload-area__text {
+      color: var(--color-text-secondary);
+      margin-bottom: 0.5rem;
+    }
+
+    .upload-area__hint {
+      font-size: 0.875rem;
+      color: var(--color-text-secondary);
+      opacity: 0.7;
+    }
+
+    .resizer-panel {
+      display: none;
+      background-color: var(--color-bg-secondary);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .resizer-panel--active {
+      display: block;
+    }
+
+    .file-info {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+      padding: 0.75rem 1rem;
+      background-color: var(--color-bg);
+      border-radius: 4px;
+      font-size: 0.875rem;
+    }
+
+    .file-info__item {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .file-info__label {
+      color: var(--color-text-secondary);
+    }
+
+    .file-info__value {
+      font-family: "SF Mono", Monaco, Consolas, monospace;
+    }
+
+    .size-inputs {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .input-group__label {
+      font-size: 0.875rem;
+      color: var(--color-text-secondary);
+    }
+
+    .input-group__input {
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      font-size: 1rem;
+      font-family: "SF Mono", Monaco, Consolas, monospace;
+      width: 120px;
+    }
+
+    .input-group__input:focus {
+      outline: none;
+      border-color: var(--color-primary);
+    }
+
+    .input-group__select {
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      font-size: 1rem;
+    }
+
+    .size-inputs__separator {
+      font-size: 1.5rem;
+      color: var(--color-text-secondary);
+      padding-bottom: 0.5rem;
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding-bottom: 0.5rem;
+    }
+
+    .checkbox-group__label {
+      font-size: 0.875rem;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .preset-buttons {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+    }
+
+    .preset-btn {
+      padding: 0.375rem 0.75rem;
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: border-color 0.2s, background-color 0.2s;
+    }
+
+    .preset-btn:hover {
+      border-color: var(--color-primary);
+      background-color: rgba(59, 130, 246, 0.1);
+    }
+
+    .preview-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .preview-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .preview-box {
+      background-color: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      padding: 1rem;
+    }
+
+    .preview-box__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .preview-box__title {
+      font-weight: 500;
+    }
+
+    .preview-box__info {
+      font-size: 0.75rem;
+      color: var(--color-text-secondary);
+      font-family: "SF Mono", Monaco, Consolas, monospace;
+    }
+
+    .preview-box__image-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 200px;
+      background-color: var(--color-bg-secondary);
+      border-radius: 4px;
+      overflow: hidden;
+      background-image:
+        linear-gradient(45deg, #ccc 25%, transparent 25%),
+        linear-gradient(-45deg, #ccc 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #ccc 75%),
+        linear-gradient(-45deg, transparent 75%, #ccc 75%);
+      background-size: 20px 20px;
+      background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .preview-box__image-wrapper {
+        background-image:
+          linear-gradient(45deg, #444 25%, transparent 25%),
+          linear-gradient(-45deg, #444 25%, transparent 25%),
+          linear-gradient(45deg, transparent 75%, #444 75%),
+          linear-gradient(-45deg, transparent 75%, #444 75%);
+      }
+    }
+
+    .preview-box__image {
+      max-width: 100%;
+      max-height: 300px;
+      object-fit: contain;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .status {
+      padding: 0.5rem 0.75rem;
+      border-radius: 4px;
+      font-size: 0.875rem;
+      margin-bottom: 1rem;
+    }
+
+    .status--error {
+      background-color: rgba(239, 68, 68, 0.1);
+      color: var(--color-error);
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container header__inner">
+      <a href="/" class="header__logo">Web Tools</a>
+      <nav class="header__nav" aria-label="メインナビゲーション">
+        <a href="/">ホーム</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="container">
+      <div class="tool-header">
+        <h1 class="tool-header__title">画像リサイズ</h1>
+        <p class="tool-header__description">画像の幅・高さを変更できます。すべてブラウザ内で処理されるため、画像がサーバーにアップロードされることはありません。</p>
+      </div>
+
+      <div id="uploadArea" class="upload-area">
+        <div class="upload-area__icon">🖼️</div>
+        <p class="upload-area__text">クリックまたはドラッグ&ドロップで画像を選択</p>
+        <p class="upload-area__hint">対応形式: PNG, JPEG, WebP</p>
+        <input type="file" id="fileInput" accept="image/png,image/jpeg,image/webp" class="hidden">
+      </div>
+
+      <div id="statusMessage" class="status status--error hidden"></div>
+
+      <div id="resizerPanel" class="resizer-panel">
+        <div class="file-info">
+          <div class="file-info__item">
+            <span class="file-info__label">ファイル名:</span>
+            <span class="file-info__value" id="fileName">-</span>
+          </div>
+          <div class="file-info__item">
+            <span class="file-info__label">元のサイズ:</span>
+            <span class="file-info__value" id="originalDimensions">-</span>
+          </div>
+        </div>
+
+        <div class="size-inputs">
+          <div class="input-group">
+            <label class="input-group__label" for="widthInput">幅 (px)</label>
+            <input type="number" id="widthInput" class="input-group__input" min="1" max="10000">
+          </div>
+          <span class="size-inputs__separator">×</span>
+          <div class="input-group">
+            <label class="input-group__label" for="heightInput">高さ (px)</label>
+            <input type="number" id="heightInput" class="input-group__input" min="1" max="10000">
+          </div>
+          <div class="checkbox-group">
+            <input type="checkbox" id="keepAspectRatio" checked>
+            <label class="checkbox-group__label" for="keepAspectRatio">アスペクト比を維持</label>
+          </div>
+        </div>
+
+        <div class="preset-buttons">
+          <button type="button" class="preset-btn" data-scale="0.25">25%</button>
+          <button type="button" class="preset-btn" data-scale="0.5">50%</button>
+          <button type="button" class="preset-btn" data-scale="0.75">75%</button>
+          <button type="button" class="preset-btn" data-scale="1">100%</button>
+          <button type="button" class="preset-btn" data-scale="1.5">150%</button>
+          <button type="button" class="preset-btn" data-scale="2">200%</button>
+        </div>
+
+        <div class="action-buttons" style="margin-bottom: 1.5rem;">
+          <button type="button" class="btn btn--primary" id="resizeBtn">リサイズする</button>
+          <button type="button" class="btn btn--secondary" id="resetBtn">リセット</button>
+        </div>
+
+        <div class="preview-container">
+          <div class="preview-box">
+            <div class="preview-box__header">
+              <span class="preview-box__title">元の画像</span>
+              <span class="preview-box__info" id="originalSizeInfo">-</span>
+            </div>
+            <div class="preview-box__image-wrapper">
+              <img id="originalPreview" class="preview-box__image" alt="元の画像">
+            </div>
+          </div>
+
+          <div class="preview-box">
+            <div class="preview-box__header">
+              <span class="preview-box__title">リサイズ後</span>
+              <span class="preview-box__info" id="resizedSizeInfo">-</span>
+            </div>
+            <div class="preview-box__image-wrapper">
+              <img id="resizedPreview" class="preview-box__image" alt="リサイズ後の画像" style="display: none;">
+              <span id="resizedPlaceholder" style="color: var(--color-text-secondary);">リサイズボタンを押してください</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="action-buttons">
+          <button type="button" class="btn btn--primary" id="downloadBtn" disabled>ダウンロード</button>
+        </div>
+      </div>
+
+      <section class="mt-3">
+        <h2 class="mb-1">使い方</h2>
+        <ol>
+          <li>画像ファイルをドラッグ&ドロップ、またはクリックして選択します</li>
+          <li>幅・高さを直接入力するか、プリセットボタン（50%、200%など）をクリックします</li>
+          <li>「アスペクト比を維持」にチェックを入れると、縦横比が保たれます</li>
+          <li>「リサイズする」ボタンをクリックするとリサイズされます</li>
+          <li>「ダウンロード」ボタンで画像を保存できます</li>
+        </ol>
+        <p class="mt-2" style="font-size: 0.875rem; color: var(--color-text-secondary);">
+          ※ 画像のフォーマット（PNG/JPEG/WebP）を変更したい場合は<a href="image-converter.html">画像フォーマット変換</a>をご利用ください。
+        </p>
+        <p class="mt-1" style="font-size: 0.875rem; color: var(--color-text-secondary);">
+          ※ 元画像が最適化されている場合、縮小してもファイルサイズが大きくなることがあります。
+        </p>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2026 Web Tools. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    // 要素の取得
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInput = document.getElementById('fileInput');
+    const resizerPanel = document.getElementById('resizerPanel');
+    const statusMessage = document.getElementById('statusMessage');
+    const widthInput = document.getElementById('widthInput');
+    const heightInput = document.getElementById('heightInput');
+    const keepAspectRatio = document.getElementById('keepAspectRatio');
+    const resizeBtn = document.getElementById('resizeBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const originalPreview = document.getElementById('originalPreview');
+    const resizedPreview = document.getElementById('resizedPreview');
+    const resizedPlaceholder = document.getElementById('resizedPlaceholder');
+    const presetButtons = document.querySelectorAll('.preset-btn');
+
+    // 状態
+    let currentFile = null;
+    let resizedBlob = null;
+    let originalWidth = 0;
+    let originalHeight = 0;
+    let aspectRatio = 1;
+
+    // エラー表示
+    function showError(message) {
+      statusMessage.textContent = message;
+      statusMessage.classList.remove('hidden');
+    }
+
+    function hideError() {
+      statusMessage.classList.add('hidden');
+    }
+
+    // ファイルを読み込む
+    function loadFile(file) {
+      hideError();
+
+      const validTypes = ['image/png', 'image/jpeg', 'image/webp'];
+      if (!validTypes.includes(file.type)) {
+        showError('対応していないファイル形式です。PNG, JPEG, WebPのみ対応しています。');
+        return;
+      }
+
+      currentFile = file;
+
+      document.getElementById('fileName').textContent = file.name;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        originalPreview.src = e.target.result;
+
+        const img = new Image();
+        img.onload = () => {
+          originalWidth = img.width;
+          originalHeight = img.height;
+          aspectRatio = img.width / img.height;
+
+          document.getElementById('originalDimensions').textContent = `${img.width} x ${img.height}`;
+          document.getElementById('originalSizeInfo').textContent = `${img.width} x ${img.height}`;
+
+          widthInput.value = img.width;
+          heightInput.value = img.height;
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+
+      resizerPanel.classList.add('resizer-panel--active');
+      resetResized();
+    }
+
+    // リサイズ結果をリセット
+    function resetResized() {
+      resizedBlob = null;
+      resizedPreview.style.display = 'none';
+      resizedPreview.src = '';
+      resizedPlaceholder.style.display = 'block';
+      document.getElementById('resizedSizeInfo').textContent = '-';
+      downloadBtn.disabled = true;
+    }
+
+    // アスペクト比を維持して幅を更新
+    widthInput.addEventListener('input', () => {
+      if (keepAspectRatio.checked && widthInput.value) {
+        const newWidth = parseInt(widthInput.value, 10);
+        if (!isNaN(newWidth)) {
+          heightInput.value = Math.round(newWidth / aspectRatio);
+        }
+      }
+    });
+
+    // アスペクト比を維持して高さを更新
+    heightInput.addEventListener('input', () => {
+      if (keepAspectRatio.checked && heightInput.value) {
+        const newHeight = parseInt(heightInput.value, 10);
+        if (!isNaN(newHeight)) {
+          widthInput.value = Math.round(newHeight * aspectRatio);
+        }
+      }
+    });
+
+    // プリセットボタン
+    presetButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const scale = parseFloat(btn.dataset.scale);
+        widthInput.value = Math.round(originalWidth * scale);
+        heightInput.value = Math.round(originalHeight * scale);
+      });
+    });
+
+    // リサイズ実行
+    async function resizeImage() {
+      if (!currentFile) return;
+
+      const newWidth = parseInt(widthInput.value, 10);
+      const newHeight = parseInt(heightInput.value, 10);
+
+      if (isNaN(newWidth) || isNaN(newHeight) || newWidth < 1 || newHeight < 1) {
+        showError('有効な幅と高さを入力してください');
+        return;
+      }
+
+      if (newWidth > 10000 || newHeight > 10000) {
+        showError('サイズは10000px以下にしてください');
+        return;
+      }
+
+      hideError();
+
+      try {
+        const img = new Image();
+        const loadPromise = new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = reject;
+        });
+        img.src = URL.createObjectURL(currentFile);
+        await loadPromise;
+
+        const canvas = document.createElement('canvas');
+        canvas.width = newWidth;
+        canvas.height = newHeight;
+        const ctx = canvas.getContext('2d');
+
+        // 高品質リサイズ
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+
+        // 元のフォーマットを維持
+        const format = currentFile.type;
+
+        // JPEGの場合は背景を白に
+        if (format === 'image/jpeg') {
+          ctx.fillStyle = '#FFFFFF';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        ctx.drawImage(img, 0, 0, newWidth, newHeight);
+
+        // Blobに変換
+        const quality = format === 'image/png' ? 1 : 0.9;
+        resizedBlob = await new Promise((resolve) => {
+          canvas.toBlob(resolve, format, quality);
+        });
+
+        // プレビューを表示
+        const previewUrl = URL.createObjectURL(resizedBlob);
+        resizedPreview.src = previewUrl;
+        resizedPreview.style.display = 'block';
+        resizedPlaceholder.style.display = 'none';
+
+        document.getElementById('resizedSizeInfo').textContent = `${newWidth} x ${newHeight}`;
+
+        downloadBtn.disabled = false;
+
+        URL.revokeObjectURL(img.src);
+
+      } catch (error) {
+        showError('リサイズに失敗しました: ' + error.message);
+      }
+    }
+
+    // ダウンロード
+    function downloadImage() {
+      if (!resizedBlob || !currentFile) return;
+
+      const format = currentFile.type;
+
+      const extensions = {
+        'image/png': '.png',
+        'image/jpeg': '.jpg',
+        'image/webp': '.webp'
+      };
+      const extension = extensions[format] || '.png';
+
+      const originalName = currentFile.name.replace(/\.[^.]+$/, '');
+      const newWidth = widthInput.value;
+      const newHeight = heightInput.value;
+      const fileName = `${originalName}_${newWidth}x${newHeight}${extension}`;
+
+      const url = URL.createObjectURL(resizedBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // リセット
+    function reset() {
+      currentFile = null;
+      resizedBlob = null;
+      originalWidth = 0;
+      originalHeight = 0;
+      aspectRatio = 1;
+      fileInput.value = '';
+      resizerPanel.classList.remove('resizer-panel--active');
+      hideError();
+      originalPreview.src = '';
+      resetResized();
+    }
+
+    // イベントリスナー
+    uploadArea.addEventListener('click', () => fileInput.click());
+
+    uploadArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadArea.classList.add('upload-area--dragover');
+    });
+
+    uploadArea.addEventListener('dragleave', () => {
+      uploadArea.classList.remove('upload-area--dragover');
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadArea.classList.remove('upload-area--dragover');
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        loadFile(files[0]);
+      }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        loadFile(e.target.files[0]);
+      }
+    });
+
+    resizeBtn.addEventListener('click', resizeImage);
+    resetBtn.addEventListener('click', reset);
+    downloadBtn.addEventListener('click', downloadImage);
+  </script>
+  <script src="../js/common.js"></script>
+</body>
+</html>

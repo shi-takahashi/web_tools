@@ -40,6 +40,7 @@
 3. **文字数カウンター** (`tools/char-counter.html`) - 文字数・行数・バイト数をリアルタイムカウント
 4. **タイムスタンプ変換** (`tools/timestamp.html`) - Unixタイムスタンプと日時の相互変換（秒・ミリ秒対応）
 5. **画像フォーマット変換** (`tools/image-converter.html`) - PNG/JPEG/WebP/SVGの相互変換（品質調整可能）
+6. **画像リサイズ** (`tools/image-resizer.html`) - 画像の幅・高さを変更（アスペクト比維持対応）
 
 ### 実装予定
 （随時追加）
