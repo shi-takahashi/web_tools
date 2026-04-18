@@ -23,9 +23,12 @@
       { name: '画像フォーマット変換', file: 'image-converter.html' },
       { name: '画像リサイズ', file: 'image-resizer.html' }
     ],
-    '開発者向け': [
-      { name: 'JSON フォーマッター', file: 'json-formatter.html' },
+    '変換': [
+      { name: '単位変換', file: 'unit-converter.html' },
       { name: 'タイムスタンプ変換', file: 'timestamp.html' }
+    ],
+    '開発者向け': [
+      { name: 'JSON フォーマッター', file: 'json-formatter.html' }
     ]
   };
 

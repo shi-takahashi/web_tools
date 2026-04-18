@@ -41,6 +41,7 @@
 4. **タイムスタンプ変換** (`tools/timestamp.html`) - Unixタイムスタンプと日時の相互変換（秒・ミリ秒対応）
 5. **画像フォーマット変換** (`tools/image-converter.html`) - PNG/JPEG/WebP/SVGの相互変換（品質調整可能）
 6. **画像リサイズ** (`tools/image-resizer.html`) - 画像の幅・高さを変更（アスペクト比維持対応）
+7. **単位変換** (`tools/unit-converter.html`) - 長さ・面積・体積・重さ・速度・温度の単位変換
 
 ### 実装予定
 （随時追加）

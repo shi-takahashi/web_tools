@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="長さ、面積、体積、重さ、速度、温度などの単位を変換するオンラインツール。マイル・キロメートル、坪・平方メートルなど様々な単位に対応。">
+  <meta name="keywords" content="単位変換,マイル,キロメートル,坪,平方メートル,ポンド,キログラム,華氏,摂氏">
+  <title>単位変換 - Web Tools</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    .converter-container {
+      background-color: var(--color-bg-secondary);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .category-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .category-tab {
+      padding: 0.5rem 1rem;
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+
+    .category-tab:hover {
+      border-color: var(--color-primary);
+    }
+
+    .category-tab--active {
+      background-color: var(--color-primary);
+      border-color: var(--color-primary);
+      color: white;
+    }
+
+    .input-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .converter-panel {
+      background-color: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      padding: 1rem;
+    }
+
+    .converter-panel__label {
+      display: block;
+      font-size: 0.875rem;
+      color: var(--color-text-secondary);
+      margin-bottom: 0.5rem;
+    }
+
+    .converter-panel__input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      font-size: 1.25rem;
+      font-family: "SF Mono", Monaco, Consolas, monospace;
+      margin-bottom: 0.75rem;
+    }
+
+    .converter-panel__input:focus {
+      outline: none;
+      border-color: var(--color-primary);
+    }
+
+    .converter-panel__input--result {
+      background-color: var(--color-bg-secondary);
+      font-weight: 500;
+    }
+
+    .converter-panel__select {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      font-size: 1rem;
+    }
+
+    .quick-conversions {
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--color-border);
+    }
+
+    .quick-conversions__title {
+      font-size: 0.875rem;
+      color: var(--color-text-secondary);
+      margin-bottom: 0.75rem;
+    }
+
+    .quick-conversions__list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 0.5rem;
+    }
+
+    .quick-conversions__item {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.5rem 0.75rem;
+      background-color: var(--color-bg);
+      border-radius: 4px;
+      font-size: 0.875rem;
+    }
+
+    .quick-conversions__label {
+      color: var(--color-text-secondary);
+    }
+
+    .quick-conversions__value {
+      font-family: "SF Mono", Monaco, Consolas, monospace;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container header__inner">
+      <a href="/" class="header__logo">Web Tools</a>
+      <nav class="header__nav" aria-label="メインナビゲーション">
+        <a href="/">ホーム</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="container">
+      <div class="tool-header">
+        <h1 class="tool-header__title">単位変換</h1>
+        <p class="tool-header__description">長さ、面積、体積、重さ、速度、温度などの単位を変換できます。</p>
+      </div>
+
+      <div class="converter-container">
+        <div class="category-tabs" id="categoryTabs">
+          <button type="button" class="category-tab category-tab--active" data-category="length">長さ</button>
+          <button type="button" class="category-tab" data-category="area">面積</button>
+          <button type="button" class="category-tab" data-category="volume">体積</button>
+          <button type="button" class="category-tab" data-category="weight">重さ</button>
+          <button type="button" class="category-tab" data-category="speed">速度</button>
+          <button type="button" class="category-tab" data-category="temperature">温度</button>
+        </div>
+
+        <div class="input-section">
+          <div class="converter-panel" style="max-width: 400px;">
+            <label class="converter-panel__label" for="fromValue">変換元</label>
+            <input type="number" id="fromValue" class="converter-panel__input" value="1" step="any">
+            <select id="fromUnit" class="converter-panel__select"></select>
+          </div>
+        </div>
+
+        <div class="quick-conversions" id="quickConversions">
+          <div class="quick-conversions__title">変換結果</div>
+          <div class="quick-conversions__list" id="quickConversionsList"></div>
+        </div>
+      </div>
+
+      <section class="mt-3">
+        <h2 class="mb-1">使い方</h2>
+        <ol>
+          <li>カテゴリー（長さ、面積、速度など）を選択します</li>
+          <li>変換元の値を入力し、単位を選択します</li>
+          <li>全ての単位への変換結果が自動で表示されます</li>
+        </ol>
+      </section>
+
+      <section class="mt-3">
+        <h2 class="mb-1">対応単位</h2>
+        <ul>
+          <li><strong>長さ:</strong> メートル、キロメートル、センチメートル、ミリメートル、インチ、フィート、ヤード、マイル、尺</li>
+          <li><strong>面積:</strong> 平方メートル、平方キロメートル、ヘクタール、アール、坪、畳、エーカー、平方フィート</li>
+          <li><strong>体積:</strong> リットル、ミリリットル、立方メートル、ガロン（米）、液量オンス（米）</li>
+          <li><strong>重さ:</strong> グラム、キログラム、ミリグラム、トン、ポンド、オンス</li>
+          <li><strong>速度:</strong> km/h、mph（マイル毎時）、m/s、ノット</li>
+          <li><strong>温度:</strong> 摂氏（℃）、華氏（℉）、ケルビン</li>
+        </ul>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container"></div>
+  </footer>
+
+  <script>
+    // 単位データ（基準単位への変換係数）
+    const UNITS = {
+      length: {
+        name: '長さ',
+        base: 'm',
+        units: {
+          'm': { name: 'メートル (m)', factor: 1 },
+          'km': { name: 'キロメートル (km)', factor: 1000 },
+          'cm': { name: 'センチメートル (cm)', factor: 0.01 },
+          'mm': { name: 'ミリメートル (mm)', factor: 0.001 },
+          'in': { name: 'インチ (in)', factor: 0.0254 },
+          'ft': { name: 'フィート (ft)', factor: 0.3048 },
+          'yd': { name: 'ヤード (yd)', factor: 0.9144 },
+          'mi': { name: 'マイル (mi)', factor: 1609.344 },
+          'shaku': { name: '尺', factor: 0.303030303 }
+        }
+      },
+      area: {
+        name: '面積',
+        base: 'm2',
+        units: {
+          'm2': { name: '平方メートル (m²)', factor: 1 },
+          'km2': { name: '平方キロメートル (km²)', factor: 1000000 },
+          'ha': { name: 'ヘクタール (ha)', factor: 10000 },
+          'a': { name: 'アール (a)', factor: 100 },
+          'tsubo': { name: '坪', factor: 3.305785 },
+          'jo': { name: '畳', factor: 1.6529 },
+          'ac': { name: 'エーカー (ac)', factor: 4046.8564224 },
+          'ft2': { name: '平方フィート (ft²)', factor: 0.09290304 }
+        }
+      },
+      volume: {
+        name: '体積',
+        base: 'L',
+        units: {
+          'L': { name: 'リットル (L)', factor: 1 },
+          'mL': { name: 'ミリリットル (mL)', factor: 0.001 },
+          'm3': { name: '立方メートル (m³)', factor: 1000 },
+          'gal': { name: 'ガロン（米）', factor: 3.785411784 },
+          'floz': { name: '液量オンス（米）', factor: 0.0295735295625 }
+        }
+      },
+      weight: {
+        name: '重さ',
+        base: 'g',
+        units: {
+          'g': { name: 'グラム (g)', factor: 1 },
+          'kg': { name: 'キログラム (kg)', factor: 1000 },
+          'mg': { name: 'ミリグラム (mg)', factor: 0.001 },
+          't': { name: 'トン (t)', factor: 1000000 },
+          'lb': { name: 'ポンド (lb)', factor: 453.59237 },
+          'oz': { name: 'オンス (oz)', factor: 28.349523125 }
+        }
+      },
+      speed: {
+        name: '速度',
+        base: 'kmh',
+        units: {
+          'kmh': { name: 'km/h（時速キロメートル）', factor: 1 },
+          'mph': { name: 'mph（時速マイル）', factor: 1.609344 },
+          'ms': { name: 'm/s（メートル毎秒）', factor: 3.6 },
+          'knot': { name: 'ノット (kt)', factor: 1.852 }
+        }
+      },
+      temperature: {
+        name: '温度',
+        base: 'C',
+        units: {
+          'C': { name: '摂氏 (℃)', factor: null },
+          'F': { name: '華氏 (℉)', factor: null },
+          'K': { name: 'ケルビン (K)', factor: null }
+        }
+      }
+    };
+
+    // 要素の取得
+    const categoryTabs = document.getElementById('categoryTabs');
+    const fromValue = document.getElementById('fromValue');
+    const fromUnit = document.getElementById('fromUnit');
+    const quickConversionsList = document.getElementById('quickConversionsList');
+
+    let currentCategory = 'length';
+
+    // カテゴリーを変更
+    function setCategory(category) {
+      currentCategory = category;
+
+      // タブのアクティブ状態を更新
+      document.querySelectorAll('.category-tab').forEach(tab => {
+        tab.classList.toggle('category-tab--active', tab.dataset.category === category);
+      });
+
+      // 単位セレクトボックスを更新
+      const units = UNITS[category].units;
+      const unitKeys = Object.keys(units);
+
+      fromUnit.innerHTML = '';
+
+      unitKeys.forEach(key => {
+        fromUnit.innerHTML += `<option value="${key}">${units[key].name}</option>`;
+      });
+
+      // デフォルトの選択
+      if (unitKeys.length >= 1) {
+        fromUnit.value = unitKeys[0];
+      }
+
+      // 変換を実行
+      convert();
+    }
+
+    // 温度変換（特別処理）
+    function convertTemperature(value, from, to) {
+      let celsius;
+
+      // まず摂氏に変換
+      switch (from) {
+        case 'C': celsius = value; break;
+        case 'F': celsius = (value - 32) * 5 / 9; break;
+        case 'K': celsius = value - 273.15; break;
+      }
+
+      // 目的の単位に変換
+      switch (to) {
+        case 'C': return celsius;
+        case 'F': return celsius * 9 / 5 + 32;
+        case 'K': return celsius + 273.15;
+      }
+    }
+
+    // 変換を実行
+    function convert() {
+      const value = parseFloat(fromValue.value);
+      if (isNaN(value)) {
+        quickConversionsList.innerHTML = '';
+        return;
+      }
+
+      const from = fromUnit.value;
+
+      // 全単位への変換を表示
+      updateQuickConversions(value, from);
+    }
+
+    // 数値をフォーマット
+    function formatNumber(num) {
+      if (Math.abs(num) >= 1000000 || (Math.abs(num) < 0.0001 && num !== 0)) {
+        return num.toExponential(6);
+      }
+      // 小数点以下の不要なゼロを削除
+      return parseFloat(num.toPrecision(10)).toString();
+    }
+
+    // その他の単位への変換を表示
+    function updateQuickConversions(value, from) {
+      const category = UNITS[currentCategory];
+      const units = category.units;
+      let html = '';
+
+      for (const [key, unit] of Object.entries(units)) {
+        if (key === from) continue;
+
+        let result;
+        if (currentCategory === 'temperature') {
+          result = convertTemperature(value, from, key);
+        } else {
+          const baseValue = value * units[from].factor;
+          result = baseValue / unit.factor;
+        }
+
+        html += `
+          <div class="quick-conversions__item">
+            <span class="quick-conversions__label">${unit.name}</span>
+            <span class="quick-conversions__value">${formatNumber(result)}</span>
+          </div>
+        `;
+      }
+
+      quickConversionsList.innerHTML = html;
+    }
+
+    // イベントリスナー
+    categoryTabs.addEventListener('click', (e) => {
+      if (e.target.classList.contains('category-tab')) {
+        setCategory(e.target.dataset.category);
+      }
+    });
+
+    fromValue.addEventListener('input', convert);
+    fromUnit.addEventListener('change', convert);
+
+    // 初期化
+    setCategory('length');
+  </script>
+  <script src="../js/common.js"></script>
+</body>
+</html>
