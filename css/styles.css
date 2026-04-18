@@ -165,6 +165,26 @@ a:hover {
   border-top: 1px solid var(--color-border);
 }
 
+.footer__info {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+}
+
+.footer__info-link {
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  text-decoration: none;
+  transition: color var(--transition);
+}
+
+.footer__info-link:hover {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
 /* ツールカード（トップページ用） */
 .tool-grid {
   display: grid;

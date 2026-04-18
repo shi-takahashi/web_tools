@@ -32,27 +32,35 @@
     ]
   };
 
-  // トップページかどうかを判定
-  function isTopPage() {
+  // toolsディレクトリ内かどうかを判定
+  function isInToolsDir() {
     const path = window.location.pathname;
-    return path === '/' || path.endsWith('/index.html') || path.endsWith('/');
+    return path.includes('/tools/');
   }
 
   // フッターナビゲーションを生成
   function generateFooterNav() {
-    const prefix = isTopPage() ? 'tools/' : '';
+    const toolsPrefix = isInToolsDir() ? '' : 'tools/';
+    const rootPrefix = isInToolsDir() ? '../' : '';
     let html = '<nav class="footer__nav">';
 
     for (const [category, tools] of Object.entries(TOOLS)) {
       html += '<div class="footer__category">';
       html += `<span class="footer__category-title">${category}</span>`;
       for (const tool of tools) {
-        html += `<a href="${prefix}${tool.file}" class="footer__link">${tool.name}</a>`;
+        html += `<a href="${toolsPrefix}${tool.file}" class="footer__link">${tool.name}</a>`;
       }
       html += '</div>';
     }
 
     html += '</nav>';
+
+    // サイト情報リンク
+    html += '<div class="footer__info">';
+    html += `<a href="${rootPrefix}privacy.html" class="footer__info-link">プライバシーポリシー</a>`;
+    html += `<a href="${rootPrefix}about.html" class="footer__info-link">運営者情報</a>`;
+    html += '</div>';
+
     return html;
   }
 

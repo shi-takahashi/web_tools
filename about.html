@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Web Toolsの運営者情報とお問い合わせ先について。">
+  <title>運営者情報 - Web Tools</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .about-content {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .about-content h2 {
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .about-content p {
+      margin-bottom: 1rem;
+      line-height: 1.8;
+    }
+
+    .info-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1.5rem;
+    }
+
+    .info-table th,
+    .info-table td {
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--color-border);
+      text-align: left;
+    }
+
+    .info-table th {
+      background-color: var(--color-bg-secondary);
+      width: 30%;
+    }
+
+    .contact-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      background-color: var(--color-primary);
+      color: white;
+      border-radius: var(--radius);
+      font-weight: 500;
+      transition: background-color var(--transition);
+    }
+
+    .contact-btn:hover {
+      background-color: var(--color-primary-hover);
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container header__inner">
+      <a href="/" class="header__logo">Web Tools</a>
+      <nav class="header__nav" aria-label="メインナビゲーション">
+        <a href="/">ホーム</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="container">
+      <div class="about-content">
+        <h1>運営者情報</h1>
+
+        <h2>サイトについて</h2>
+        <p>Web Toolsは、便利なオンラインツールを無料で提供するWebサイトです。すべてのツールはブラウザ上で動作し、入力データがサーバーに送信されることはありません。</p>
+
+        <h2>運営者</h2>
+        <table class="info-table">
+          <tr>
+            <th>サイト名</th>
+            <td>Web Tools</td>
+          </tr>
+          <tr>
+            <th>運営形態</th>
+            <td>個人運営</td>
+          </tr>
+          <tr>
+            <th>URL</th>
+            <td>https://tak-labs.com/</td>
+          </tr>
+        </table>
+
+        <h2>お問い合わせ</h2>
+        <p>ご意見、ご要望、不具合報告などがございましたら、下記のお問い合わせフォームよりご連絡ください。</p>
+        <p>
+          <a href="https://forms.gle/brHFTG74Gcoy63Fj8" class="contact-btn" target="_blank" rel="noopener noreferrer">
+            お問い合わせフォーム
+          </a>
+        </p>
+        <p style="font-size: 0.875rem; color: var(--color-text-secondary); margin-top: 1rem;">
+          ※ すべてのお問い合わせに返信できるとは限りません。あらかじめご了承ください。
+        </p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container"></div>
+  </footer>
+  <script src="js/common.js"></script>
+</body>
+</html>
