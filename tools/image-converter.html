@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="PNG、JPEG、WebP、SVG画像を相互変換するオンラインツール。品質調整可能、ブラウザ内で処理するため安全。">
+  <meta name="keywords" content="画像変換,PNG,JPEG,WebP,SVG,コンバーター,フォーマット変換">
+  <title>画像フォーマット変換 - Web Tools</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    .upload-area {
+      border: 2px dashed var(--color-border);
+      border-radius: 8px;
+      padding: 3rem 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background-color 0.2s;
+      margin-bottom: 1.5rem;
+    }
+
+    .upload-area:hover,
+    .upload-area--dragover {
+      border-color: var(--color-primary);
+      background-color: rgba(59, 130, 246, 0.05);
+    }
+
+    .upload-area__icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    .upload-area__text {
+      color: var(--color-text-secondary);
+      margin-bottom: 0.5rem;
+    }
+
+    .upload-area__hint {
+      font-size: 0.875rem;
+      color: var(--color-text-secondary);
+      opacity: 0.7;
+    }
+
+    .converter-panel {
+      display: none;
+      background-color: var(--color-bg-secondary);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .converter-panel--active {
+      display: block;
+    }
+
+    .preview-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .preview-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .preview-box {
+      background-color: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      padding: 1rem;
+    }
+
+    .preview-box__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .preview-box__title {
+      font-weight: 500;
+    }
+
+    .preview-box__info {
+      font-size: 0.75rem;
+      color: var(--color-text-secondary);
+    }
+
+    .preview-box__image-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 200px;
+      background-color: var(--color-bg-secondary);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .preview-box__image {
+      max-width: 100%;
+      max-height: 300px;
+      object-fit: contain;
+    }
+
+    /* チェッカーボード背景（透過画像用） */
+    .preview-box__image-wrapper--checkered {
+      background-image:
+        linear-gradient(45deg, #ccc 25%, transparent 25%),
+        linear-gradient(-45deg, #ccc 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #ccc 75%),
+        linear-gradient(-45deg, transparent 75%, #ccc 75%);
+      background-size: 20px 20px;
+      background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .preview-box__image-wrapper--checkered {
+        background-image:
+          linear-gradient(45deg, #444 25%, transparent 25%),
+          linear-gradient(-45deg, #444 25%, transparent 25%),
+          linear-gradient(45deg, transparent 75%, #444 75%),
+          linear-gradient(-45deg, transparent 75%, #444 75%);
+      }
+    }
+
+    .options-row {
+      display: flex;
+      gap: 1.5rem;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+    }
+
+    .option-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .option-group__label {
+      font-size: 0.875rem;
+      color: var(--color-text-secondary);
+    }
+
+    .option-group__select,
+    .option-group__input {
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      font-size: 1rem;
+    }
+
+    .option-group__range {
+      width: 150px;
+    }
+
+    .quality-value {
+      font-family: "SF Mono", Monaco, Consolas, monospace;
+      font-size: 0.875rem;
+      min-width: 3ch;
+      text-align: right;
+    }
+
+    .quality-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .file-info {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+      padding: 0.75rem 1rem;
+      background-color: var(--color-bg);
+      border-radius: 4px;
+      font-size: 0.875rem;
+    }
+
+    .file-info__item {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .file-info__label {
+      color: var(--color-text-secondary);
+    }
+
+    .file-info__value {
+      font-family: "SF Mono", Monaco, Consolas, monospace;
+    }
+
+    .size-comparison {
+      padding: 0.5rem 0.75rem;
+      border-radius: 4px;
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+    }
+
+    .size-comparison--smaller {
+      background-color: rgba(34, 197, 94, 0.1);
+      color: var(--color-success);
+    }
+
+    .size-comparison--larger {
+      background-color: rgba(239, 68, 68, 0.1);
+      color: var(--color-error);
+    }
+
+    .size-comparison--same {
+      background-color: var(--color-bg-secondary);
+      color: var(--color-text-secondary);
+    }
+
+    .status {
+      padding: 0.5rem 0.75rem;
+      border-radius: 4px;
+      font-size: 0.875rem;
+      margin-bottom: 1rem;
+    }
+
+    .status--error {
+      background-color: rgba(239, 68, 68, 0.1);
+      color: var(--color-error);
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container header__inner">
+      <a href="/" class="header__logo">Web Tools</a>
+      <nav class="header__nav" aria-label="メインナビゲーション">
+        <a href="/">ホーム</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="container">
+      <div class="tool-header">
+        <h1 class="tool-header__title">画像フォーマット変換</h1>
+        <p class="tool-header__description">PNG、JPEG、WebP、SVG画像を相互変換できます。すべてブラウザ内で処理されるため、画像がサーバーにアップロードされることはありません。</p>
+      </div>
+
+      <div id="uploadArea" class="upload-area">
+        <div class="upload-area__icon">🖼️</div>
+        <p class="upload-area__text">クリックまたはドラッグ&ドロップで画像を選択</p>
+        <p class="upload-area__hint">対応形式: PNG, JPEG, WebP, SVG</p>
+        <input type="file" id="fileInput" accept="image/png,image/jpeg,image/webp,image/svg+xml" class="hidden">
+      </div>
+
+      <div id="statusMessage" class="status status--error hidden"></div>
+
+      <div id="converterPanel" class="converter-panel">
+        <div class="file-info" id="fileInfo">
+          <div class="file-info__item">
+            <span class="file-info__label">ファイル名:</span>
+            <span class="file-info__value" id="fileName">-</span>
+          </div>
+          <div class="file-info__item">
+            <span class="file-info__label">元の形式:</span>
+            <span class="file-info__value" id="originalFormat">-</span>
+          </div>
+          <div class="file-info__item">
+            <span class="file-info__label">サイズ:</span>
+            <span class="file-info__value" id="originalSize">-</span>
+          </div>
+          <div class="file-info__item">
+            <span class="file-info__label">解像度:</span>
+            <span class="file-info__value" id="dimensions">-</span>
+          </div>
+        </div>
+
+        <div class="options-row">
+          <div class="option-group">
+            <label class="option-group__label" for="outputFormat">変換先フォーマット</label>
+            <select id="outputFormat" class="option-group__select">
+              <option value="image/png">PNG</option>
+              <option value="image/jpeg">JPEG</option>
+              <option value="image/webp">WebP</option>
+            </select>
+          </div>
+
+          <div class="option-group" id="qualityGroup">
+            <label class="option-group__label">品質</label>
+            <div class="quality-row">
+              <input type="range" id="quality" class="option-group__range" min="1" max="99" value="90">
+              <span class="quality-value" id="qualityValue">90%</span>
+            </div>
+          </div>
+
+
+          <div class="action-buttons">
+            <button type="button" class="btn btn--primary" id="convertBtn">変換する</button>
+            <button type="button" class="btn btn--secondary" id="resetBtn">リセット</button>
+          </div>
+        </div>
+
+        <div class="preview-container">
+          <div class="preview-box">
+            <div class="preview-box__header">
+              <span class="preview-box__title">元の画像</span>
+              <span class="preview-box__info" id="originalSizeInfo">-</span>
+            </div>
+            <div class="preview-box__image-wrapper preview-box__image-wrapper--checkered">
+              <img id="originalPreview" class="preview-box__image" alt="元の画像">
+            </div>
+          </div>
+
+          <div class="preview-box">
+            <div class="preview-box__header">
+              <span class="preview-box__title">変換後</span>
+              <span class="preview-box__info" id="convertedSizeInfo">-</span>
+            </div>
+            <div class="preview-box__image-wrapper preview-box__image-wrapper--checkered">
+              <img id="convertedPreview" class="preview-box__image" alt="変換後の画像" style="display: none;">
+              <span id="convertedPlaceholder" style="color: var(--color-text-secondary);">変換ボタンを押してください</span>
+            </div>
+            <div id="sizeComparison" class="size-comparison hidden"></div>
+          </div>
+        </div>
+
+        <div class="action-buttons">
+          <button type="button" class="btn btn--primary" id="downloadBtn" disabled>ダウンロード</button>
+        </div>
+      </div>
+
+      <section class="mt-3">
+        <h2 class="mb-1">使い方</h2>
+        <ol>
+          <li>画像ファイルをドラッグ&ドロップ、またはクリックして選択します</li>
+          <li>変換先のフォーマット（PNG / JPEG / WebP）を選択します</li>
+          <li>JPEG・WebPの場合は品質を調整できます（値が高いほど高品質・大容量）<br><small style="color: var(--color-text-secondary);">※ WebP変換はChromeを推奨。Safariでは品質設定が効かず、ファイルサイズが大きくなる場合があります。</small></li>
+          <li>「変換する」ボタンをクリックすると変換されます</li>
+          <li>「ダウンロード」ボタンで変換後の画像を保存できます</li>
+        </ol>
+      </section>
+
+      <section class="mt-3">
+        <h2 class="mb-1">フォーマットの特徴</h2>
+        <ul>
+          <li><strong>PNG</strong>: 透過対応、可逆圧縮、イラストやスクリーンショットに最適</li>
+          <li><strong>JPEG</strong>: 写真向け、非可逆圧縮、透過非対応、ファイルサイズが小さい</li>
+          <li><strong>WebP</strong>: 透過対応、可逆/非可逆両対応、PNG・JPEGより高圧縮、モダンブラウザ対応</li>
+          <li><strong>SVG</strong>: ベクター形式、拡大しても劣化しない（※ラスター形式への変換のみ対応）</li>
+        </ul>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2026 Web Tools. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    // 要素の取得
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInput = document.getElementById('fileInput');
+    const converterPanel = document.getElementById('converterPanel');
+    const statusMessage = document.getElementById('statusMessage');
+    const outputFormat = document.getElementById('outputFormat');
+    const quality = document.getElementById('quality');
+    const qualityValue = document.getElementById('qualityValue');
+    const qualityGroup = document.getElementById('qualityGroup');
+    const convertBtn = document.getElementById('convertBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const originalPreview = document.getElementById('originalPreview');
+    const convertedPreview = document.getElementById('convertedPreview');
+    const convertedPlaceholder = document.getElementById('convertedPlaceholder');
+    const sizeComparison = document.getElementById('sizeComparison');
+
+    // 状態
+    let currentFile = null;
+    let convertedBlob = null;
+    let originalFileSize = 0;
+
+    // ファイルサイズのフォーマット
+    function formatFileSize(bytes) {
+      if (bytes === 0) return '0 B';
+      const k = 1024;
+      const sizes = ['B', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    // MIMEタイプから表示名を取得
+    function getFormatName(mimeType) {
+      const formats = {
+        'image/png': 'PNG',
+        'image/jpeg': 'JPEG',
+        'image/webp': 'WebP',
+        'image/svg+xml': 'SVG'
+      };
+      return formats[mimeType] || mimeType;
+    }
+
+    // 拡張子を取得
+    function getExtension(mimeType) {
+      const extensions = {
+        'image/png': '.png',
+        'image/jpeg': '.jpg',
+        'image/webp': '.webp'
+      };
+      return extensions[mimeType] || '';
+    }
+
+    // エラー表示
+    function showError(message) {
+      statusMessage.textContent = message;
+      statusMessage.classList.remove('hidden');
+    }
+
+    function hideError() {
+      statusMessage.classList.add('hidden');
+    }
+
+    // 品質オプションの表示/非表示（JPEG/WebPで品質設定可能）
+    function updateQualityVisibility() {
+      const format = outputFormat.value;
+      if (format === 'image/jpeg' || format === 'image/webp') {
+        qualityGroup.style.display = 'flex';
+      } else {
+        qualityGroup.style.display = 'none';
+      }
+    }
+
+
+    // ファイルを読み込む
+    function loadFile(file) {
+      hideError();
+
+      // ファイルタイプのチェック
+      const validTypes = ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml'];
+      if (!validTypes.includes(file.type)) {
+        showError('対応していないファイル形式です。PNG, JPEG, WebP, SVGのみ対応しています。');
+        return;
+      }
+
+      currentFile = file;
+      originalFileSize = file.size;
+
+      // ファイル情報を表示
+      document.getElementById('fileName').textContent = file.name;
+      document.getElementById('originalFormat').textContent = getFormatName(file.type);
+      document.getElementById('originalSize').textContent = formatFileSize(file.size);
+      document.getElementById('originalSizeInfo').textContent = formatFileSize(file.size);
+
+      // プレビューを表示
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        originalPreview.src = e.target.result;
+
+        // 解像度を取得
+        const img = new Image();
+        img.onload = () => {
+          document.getElementById('dimensions').textContent = `${img.width} x ${img.height}`;
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+
+      // 変換パネルを表示
+      converterPanel.classList.add('converter-panel--active');
+
+      // 変換結果をリセット
+      resetConversion();
+
+      // SVGの場合、PNGをデフォルトに
+      if (file.type === 'image/svg+xml') {
+        outputFormat.value = 'image/png';
+      }
+      updateQualityVisibility();
+    }
+
+    // 変換結果をリセット
+    function resetConversion() {
+      convertedBlob = null;
+      convertedPreview.style.display = 'none';
+      convertedPreview.src = '';
+      convertedPlaceholder.style.display = 'block';
+      document.getElementById('convertedSizeInfo').textContent = '-';
+      sizeComparison.classList.add('hidden');
+      downloadBtn.disabled = true;
+    }
+
+    // 同一フォーマットかどうかをチェック
+    function isSameFormat(fileType, targetFormat) {
+      // SVGは常に変換が必要
+      if (fileType === 'image/svg+xml') return false;
+      return fileType === targetFormat;
+    }
+
+    // 画像を変換
+    async function convertImage() {
+      if (!currentFile) return;
+
+      const format = outputFormat.value;
+      const qualityVal = format === 'image/png' ? 1 : quality.value / 100;
+
+      try {
+        // 同一フォーマットの場合は元ファイルをそのまま使用
+        if (isSameFormat(currentFile.type, format)) {
+          convertedBlob = currentFile;
+
+          // プレビューを表示
+          const previewUrl = URL.createObjectURL(convertedBlob);
+          convertedPreview.src = previewUrl;
+          convertedPreview.style.display = 'block';
+          convertedPlaceholder.style.display = 'none';
+
+          // サイズ情報を表示
+          document.getElementById('convertedSizeInfo').textContent = formatFileSize(convertedBlob.size);
+
+          // サイズ比較（同一なので変化なし）
+          sizeComparison.classList.remove('hidden', 'size-comparison--smaller', 'size-comparison--larger', 'size-comparison--same');
+          sizeComparison.classList.add('size-comparison--same');
+          sizeComparison.textContent = '同一フォーマットのため変換なし';
+
+          downloadBtn.disabled = false;
+          return;
+        }
+
+        // 画像を読み込む
+        const img = new Image();
+        const loadPromise = new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = reject;
+        });
+
+        // SVGの場合はURLをそのまま使用
+        if (currentFile.type === 'image/svg+xml') {
+          const reader = new FileReader();
+          const dataUrl = await new Promise((resolve) => {
+            reader.onload = (e) => resolve(e.target.result);
+            reader.readAsDataURL(currentFile);
+          });
+          img.src = dataUrl;
+        } else {
+          img.src = URL.createObjectURL(currentFile);
+        }
+
+        await loadPromise;
+
+        // Canvasに描画
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+
+        // JPEGの場合は背景を白に（透過がないため）
+        if (format === 'image/jpeg') {
+          ctx.fillStyle = '#FFFFFF';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        ctx.drawImage(img, 0, 0);
+
+        // Blobに変換
+        convertedBlob = await new Promise((resolve) => {
+          canvas.toBlob(resolve, format, qualityVal);
+        });
+
+        // プレビューを表示
+        const previewUrl = URL.createObjectURL(convertedBlob);
+        convertedPreview.src = previewUrl;
+        convertedPreview.style.display = 'block';
+        convertedPlaceholder.style.display = 'none';
+
+        // サイズ情報を表示
+        const convertedSize = convertedBlob.size;
+        document.getElementById('convertedSizeInfo').textContent = formatFileSize(convertedSize);
+
+        // サイズ比較
+        const sizeDiff = convertedSize - originalFileSize;
+        const sizePercent = ((convertedSize / originalFileSize) * 100).toFixed(1);
+
+        sizeComparison.classList.remove('hidden', 'size-comparison--smaller', 'size-comparison--larger', 'size-comparison--same');
+
+        if (sizeDiff < 0) {
+          sizeComparison.classList.add('size-comparison--smaller');
+          sizeComparison.textContent = `${formatFileSize(Math.abs(sizeDiff))} 削減 (${sizePercent}%)`;
+        } else if (sizeDiff > 0) {
+          sizeComparison.classList.add('size-comparison--larger');
+          sizeComparison.textContent = `${formatFileSize(sizeDiff)} 増加 (${sizePercent}%)`;
+        } else {
+          sizeComparison.classList.add('size-comparison--same');
+          sizeComparison.textContent = 'サイズ変化なし';
+        }
+
+        // ダウンロードボタンを有効化
+        downloadBtn.disabled = false;
+
+        // ObjectURLを解放
+        if (currentFile.type !== 'image/svg+xml') {
+          URL.revokeObjectURL(img.src);
+        }
+
+      } catch (error) {
+        showError('画像の変換に失敗しました: ' + error.message);
+      }
+    }
+
+    // ダウンロード
+    function downloadImage() {
+      if (!convertedBlob || !currentFile) return;
+
+      const format = outputFormat.value;
+      const extension = getExtension(format);
+      const originalName = currentFile.name.replace(/\.[^.]+$/, '');
+      const fileName = `${originalName}${extension}`;
+
+      const url = URL.createObjectURL(convertedBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // リセット
+    function reset() {
+      currentFile = null;
+      convertedBlob = null;
+      originalFileSize = 0;
+      fileInput.value = '';
+      converterPanel.classList.remove('converter-panel--active');
+      hideError();
+      originalPreview.src = '';
+      resetConversion();
+    }
+
+    // イベントリスナー
+    uploadArea.addEventListener('click', () => fileInput.click());
+
+    uploadArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadArea.classList.add('upload-area--dragover');
+    });
+
+    uploadArea.addEventListener('dragleave', () => {
+      uploadArea.classList.remove('upload-area--dragover');
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadArea.classList.remove('upload-area--dragover');
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        loadFile(files[0]);
+      }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        loadFile(e.target.files[0]);
+      }
+    });
+
+    outputFormat.addEventListener('change', () => {
+      updateQualityVisibility();
+      resetConversion();
+    });
+
+    // 品質変更時のデバウンスタイマー
+    let qualityDebounceTimer = null;
+
+    quality.addEventListener('input', () => {
+      qualityValue.textContent = quality.value + '%';
+
+      // 既に変換済みの場合は、品質変更時に自動で再変換
+      if (convertedBlob && currentFile) {
+        // デバウンス: 200ms後に再変換
+        clearTimeout(qualityDebounceTimer);
+        qualityDebounceTimer = setTimeout(() => {
+          convertImage();
+        }, 200);
+      }
+    });
+
+    convertBtn.addEventListener('click', convertImage);
+    resetBtn.addEventListener('click', reset);
+    downloadBtn.addEventListener('click', downloadImage);
+
+    // 初期化
+    updateQualityVisibility();
+  </script>
+  <script src="../js/common.js"></script>
+</body>
+</html>
