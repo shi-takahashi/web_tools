@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Unixタイムスタンプと日時を相互変換するオンラインツール。秒・ミリ秒対応、複数フォーマット表示。">
+  <meta name="keywords" content="タイムスタンプ,Unix時間,変換,日時,エポック,UNIX timestamp">
+  <title>タイムスタンプ変換 - Web Tools</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    .converter-section {
+      background-color: var(--color-bg-secondary);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .converter-section__title {
+      font-size: 1.125rem;
+      font-weight: 500;
+      margin-bottom: 1rem;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-end;
+      flex-wrap: wrap;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .input-group__label {
+      font-size: 0.875rem;
+      color: var(--color-text-secondary);
+    }
+
+    .input-group__input {
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      font-size: 1rem;
+      font-family: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, monospace;
+    }
+
+    .input-group__input--wide {
+      min-width: 200px;
+    }
+
+    .result-box {
+      margin-top: 1rem;
+      padding: 1rem;
+      background-color: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+    }
+
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .result-row:last-child {
+      border-bottom: none;
+    }
+
+    .result-row__label {
+      font-size: 0.875rem;
+      color: var(--color-text-secondary);
+    }
+
+    .result-row__value {
+      font-family: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, monospace;
+      font-size: 0.875rem;
+      user-select: all;
+    }
+
+    .current-time {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      background-color: var(--color-primary);
+      color: white;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+    }
+
+    .current-time__label {
+      font-size: 0.875rem;
+      opacity: 0.9;
+    }
+
+    .current-time__value {
+      font-family: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, monospace;
+      font-size: 1.25rem;
+      font-weight: 500;
+    }
+
+    .status {
+      padding: 0.5rem 0.75rem;
+      border-radius: 4px;
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+    }
+
+    .status--valid {
+      background-color: rgba(34, 197, 94, 0.1);
+      color: var(--color-success);
+    }
+
+    .status--invalid {
+      background-color: rgba(239, 68, 68, 0.1);
+      color: var(--color-error);
+    }
+
+    @media (max-width: 768px) {
+      .input-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .input-group__input--wide {
+        min-width: auto;
+        width: 100%;
+      }
+
+      .current-time {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container header__inner">
+      <a href="/" class="header__logo">Web Tools</a>
+      <nav class="header__nav" aria-label="メインナビゲーション">
+        <a href="/">ホーム</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="container">
+      <div class="tool-header">
+        <h1 class="tool-header__title">タイムスタンプ変換</h1>
+        <p class="tool-header__description">Unixタイムスタンプと日時を相互変換するツールです。</p>
+      </div>
+
+      <div class="current-time">
+        <div>
+          <div class="current-time__label">現在のUnixタイムスタンプ</div>
+          <div class="current-time__value" id="currentTimestamp">-</div>
+        </div>
+        <button type="button" class="btn btn--secondary" id="copyCurrentBtn" style="background-color: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.3);">コピー</button>
+      </div>
+
+      <!-- タイムスタンプ → 日時 -->
+      <div class="converter-section">
+        <h2 class="converter-section__title">タイムスタンプ → 日時</h2>
+        <div class="input-row">
+          <div class="input-group">
+            <label class="input-group__label" for="timestampInput">Unixタイムスタンプ</label>
+            <input type="text" id="timestampInput" class="input-group__input input-group__input--wide" placeholder="例: 1713398400">
+          </div>
+          <div class="input-group">
+            <label class="input-group__label" for="timestampUnit">単位</label>
+            <select id="timestampUnit" class="input-group__input">
+              <option value="auto">自動判定</option>
+              <option value="s">秒</option>
+              <option value="ms">ミリ秒</option>
+            </select>
+          </div>
+          <button type="button" class="btn btn--primary" id="convertToDateBtn">変換</button>
+        </div>
+        <div id="timestampStatus"></div>
+        <div class="result-box" id="timestampResult" style="display: none;">
+          <div class="result-row">
+            <span class="result-row__label">ローカル時刻</span>
+            <span class="result-row__value" id="resultLocal">-</span>
+          </div>
+          <div class="result-row">
+            <span class="result-row__label">UTC</span>
+            <span class="result-row__value" id="resultUtc">-</span>
+          </div>
+          <div class="result-row">
+            <span class="result-row__label">ISO 8601</span>
+            <span class="result-row__value" id="resultIso">-</span>
+          </div>
+          <div class="result-row">
+            <span class="result-row__label">相対時間</span>
+            <span class="result-row__value" id="resultRelative">-</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 日時 → タイムスタンプ -->
+      <div class="converter-section">
+        <h2 class="converter-section__title">日時 → タイムスタンプ</h2>
+        <div class="input-row">
+          <div class="input-group">
+            <label class="input-group__label" for="dateInput">日付</label>
+            <input type="date" id="dateInput" class="input-group__input">
+          </div>
+          <div class="input-group">
+            <label class="input-group__label" for="timeInput">時刻</label>
+            <input type="time" id="timeInput" class="input-group__input" step="1" value="00:00:00">
+          </div>
+          <button type="button" class="btn btn--primary" id="convertToTimestampBtn">変換</button>
+          <button type="button" class="btn btn--secondary" id="setNowBtn">現在時刻をセット</button>
+        </div>
+        <div id="dateStatus"></div>
+        <div class="result-box" id="dateResult" style="display: none;">
+          <div class="result-row">
+            <span class="result-row__label">タイムスタンプ（秒）</span>
+            <span class="result-row__value" id="resultSeconds">-</span>
+          </div>
+          <div class="result-row">
+            <span class="result-row__label">タイムスタンプ（ミリ秒）</span>
+            <span class="result-row__value" id="resultMilliseconds">-</span>
+          </div>
+        </div>
+      </div>
+
+      <section class="mt-3">
+        <h2 class="mb-1">使い方</h2>
+        <ol>
+          <li><strong>タイムスタンプ → 日時:</strong> Unixタイムスタンプを入力して「変換」をクリック。秒・ミリ秒は自動判定されます。</li>
+          <li><strong>日時 → タイムスタンプ:</strong> 日付と時刻を選択して「変換」をクリック。</li>
+          <li>ページ上部には現在のUnixタイムスタンプがリアルタイムで表示されます。</li>
+        </ol>
+      </section>
+
+      <section class="mt-3">
+        <h2 class="mb-1">Unixタイムスタンプとは</h2>
+        <p>Unixタイムスタンプ（エポック秒）は、1970年1月1日 00:00:00 UTC からの経過秒数です。プログラミングやデータベースで日時を扱う際に広く使われています。</p>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2026 Web Tools. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    // 要素の取得
+    const currentTimestamp = document.getElementById('currentTimestamp');
+    const copyCurrentBtn = document.getElementById('copyCurrentBtn');
+    const timestampInput = document.getElementById('timestampInput');
+    const timestampUnit = document.getElementById('timestampUnit');
+    const convertToDateBtn = document.getElementById('convertToDateBtn');
+    const timestampStatus = document.getElementById('timestampStatus');
+    const timestampResult = document.getElementById('timestampResult');
+    const dateInput = document.getElementById('dateInput');
+    const timeInput = document.getElementById('timeInput');
+    const convertToTimestampBtn = document.getElementById('convertToTimestampBtn');
+    const setNowBtn = document.getElementById('setNowBtn');
+    const dateStatus = document.getElementById('dateStatus');
+    const dateResult = document.getElementById('dateResult');
+
+    // 現在時刻の更新
+    function updateCurrentTimestamp() {
+      currentTimestamp.textContent = Math.floor(Date.now() / 1000);
+    }
+    updateCurrentTimestamp();
+    setInterval(updateCurrentTimestamp, 1000);
+
+    // 現在時刻をコピー
+    copyCurrentBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(currentTimestamp.textContent);
+        copyCurrentBtn.textContent = 'コピーしました';
+        setTimeout(() => {
+          copyCurrentBtn.textContent = 'コピー';
+        }, 2000);
+      } catch (e) {
+        // コピー失敗時は何もしない
+      }
+    });
+
+    // ステータス表示
+    function setStatus(element, type, message) {
+      element.className = 'status';
+      if (type === 'valid') {
+        element.classList.add('status--valid');
+      } else if (type === 'invalid') {
+        element.classList.add('status--invalid');
+      }
+      element.textContent = message;
+    }
+
+    // 相対時間の計算
+    function getRelativeTime(date) {
+      const now = new Date();
+      const diffMs = date - now;
+      const diffSec = Math.abs(Math.floor(diffMs / 1000));
+      const isPast = diffMs < 0;
+
+      if (diffSec < 60) {
+        return isPast ? `${diffSec}秒前` : `${diffSec}秒後`;
+      }
+      const diffMin = Math.floor(diffSec / 60);
+      if (diffMin < 60) {
+        return isPast ? `${diffMin}分前` : `${diffMin}分後`;
+      }
+      const diffHour = Math.floor(diffMin / 60);
+      if (diffHour < 24) {
+        return isPast ? `${diffHour}時間前` : `${diffHour}時間後`;
+      }
+      const diffDay = Math.floor(diffHour / 24);
+      if (diffDay < 30) {
+        return isPast ? `${diffDay}日前` : `${diffDay}日後`;
+      }
+      const diffMonth = Math.floor(diffDay / 30);
+      if (diffMonth < 12) {
+        return isPast ? `約${diffMonth}ヶ月前` : `約${diffMonth}ヶ月後`;
+      }
+      const diffYear = Math.floor(diffMonth / 12);
+      return isPast ? `約${diffYear}年前` : `約${diffYear}年後`;
+    }
+
+    // タイムスタンプを自動判定
+    function normalizeTimestamp(value, unit) {
+      const num = parseInt(value, 10);
+      if (isNaN(num)) return null;
+
+      if (unit === 'auto') {
+        // 10桁以下なら秒、それ以上ならミリ秒と判定
+        if (value.length <= 10) {
+          return num * 1000;
+        } else {
+          return num;
+        }
+      } else if (unit === 's') {
+        return num * 1000;
+      } else {
+        return num;
+      }
+    }
+
+    // タイムスタンプ → 日時変換
+    function convertTimestampToDate() {
+      const value = timestampInput.value.trim();
+
+      if (!value) {
+        timestampResult.style.display = 'none';
+        setStatus(timestampStatus, 'invalid', 'タイムスタンプを入力してください');
+        return;
+      }
+
+      const ms = normalizeTimestamp(value, timestampUnit.value);
+      if (ms === null) {
+        timestampResult.style.display = 'none';
+        setStatus(timestampStatus, 'invalid', '有効な数値を入力してください');
+        return;
+      }
+
+      const date = new Date(ms);
+      if (isNaN(date.getTime())) {
+        timestampResult.style.display = 'none';
+        setStatus(timestampStatus, 'invalid', '無効なタイムスタンプです');
+        return;
+      }
+
+      // 結果を表示
+      document.getElementById('resultLocal').textContent = date.toLocaleString('ja-JP', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        weekday: 'short'
+      });
+      document.getElementById('resultUtc').textContent = date.toUTCString();
+      document.getElementById('resultIso').textContent = date.toISOString();
+      document.getElementById('resultRelative').textContent = getRelativeTime(date);
+
+      timestampResult.style.display = 'block';
+      setStatus(timestampStatus, 'valid', '変換しました');
+    }
+
+    convertToDateBtn.addEventListener('click', convertTimestampToDate);
+    timestampInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') convertTimestampToDate();
+    });
+
+    // 日時 → タイムスタンプ変換
+    function convertDateToTimestamp() {
+      const dateValue = dateInput.value;
+      const timeValue = timeInput.value || '00:00:00';
+
+      if (!dateValue) {
+        dateResult.style.display = 'none';
+        setStatus(dateStatus, 'invalid', '日付を選択してください');
+        return;
+      }
+
+      const dateTimeStr = `${dateValue}T${timeValue}`;
+      const date = new Date(dateTimeStr);
+
+      if (isNaN(date.getTime())) {
+        dateResult.style.display = 'none';
+        setStatus(dateStatus, 'invalid', '無効な日時です');
+        return;
+      }
+
+      const seconds = Math.floor(date.getTime() / 1000);
+      const milliseconds = date.getTime();
+
+      document.getElementById('resultSeconds').textContent = seconds;
+      document.getElementById('resultMilliseconds').textContent = milliseconds;
+
+      dateResult.style.display = 'block';
+      setStatus(dateStatus, 'valid', '変換しました');
+    }
+
+    convertToTimestampBtn.addEventListener('click', convertDateToTimestamp);
+
+    // 現在時刻をセット
+    setNowBtn.addEventListener('click', () => {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+
+      dateInput.value = `${year}-${month}-${day}`;
+      timeInput.value = `${hours}:${minutes}:${seconds}`;
+    });
+
+    // 初期値として今日の日付をセット
+    const today = new Date();
+    dateInput.value = today.toISOString().split('T')[0];
+  </script>
+  <script src="../js/common.js"></script>
+</body>
+</html>

@@ -38,6 +38,7 @@
 1. **JSONフォーマッター** (`tools/json-formatter.html`) - JSONの整形・検証・圧縮ツール
 2. **Base64エンコーダー/デコーダー** (`tools/base64.html`) - テキストのBase64エンコード・デコード（日本語対応）
 3. **文字数カウンター** (`tools/char-counter.html`) - 文字数・行数・バイト数をリアルタイムカウント
+4. **タイムスタンプ変換** (`tools/timestamp.html`) - Unixタイムスタンプと日時の相互変換（秒・ミリ秒対応）
 
 ### 実装予定
 （随時追加）
