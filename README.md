@@ -51,10 +51,12 @@
 1. `tools/` ディレクトリに新しいHTMLファイルを作成
 2. 共通CSSを読み込む: `<link rel="stylesheet" href="../css/styles.css">`
 3. 共通JSを読み込む: `<script src="../js/common.js"></script>`（`</body>`の前に）
-4. SEO用のmeta タグを設定（title, description, keywords）
-5. `index.html` のツール一覧に追加
-6. `sitemap.xml` に新しいURLを追加
-7. このREADMEの「実装済み」セクションを更新
+4. フッターは空の要素だけ配置: `<footer class="footer"><div class="container"></div></footer>`
+5. SEO用のmeta タグを設定（title, description, keywords）
+6. `index.html` のツール一覧に追加
+7. `js/common.js` の `TOOLS` オブジェクトに追加（フッターナビゲーションに反映される）
+8. `sitemap.xml` に新しいURLを追加
+9. このREADMEの「実装済み」セクションを更新
 
 ## 共通デザインガイドライン
 
@@ -100,6 +102,6 @@ aws cloudfront create-invalidation \
   - JSONフォーマッター (`tools/json-formatter.html`) - 整形・圧縮・検証機能
   - Base64エンコーダー/デコーダー (`tools/base64.html`) - UTF-8対応
   - 文字数カウンター (`tools/char-counter.html`) - リアルタイムカウント
-  - 共通JS (`js/common.js`) - プライバシー説明、Google Analytics
+  - 共通JS (`js/common.js`) - フッターナビゲーション動的生成、プライバシー説明、Google Analytics
   - SEO対策: sitemap.xml、robots.txt作成、Google Search Console登録
   - アクセス解析: Google Analytics (GA4) 導入
