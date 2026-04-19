@@ -48,7 +48,7 @@
 7. **単位変換** (`tools/unit-converter.html`) - 長さ・面積・体積・重さ・速度・温度の単位変換
 8. **QRコード生成** (`tools/qr-generator.html`) - テキストやURLからQRコードを生成（PNG形式でダウンロード可能）
 9. **URLエンコーダー/デコーダー** (`tools/url-encoder.html`) - URLエンコード・デコード（日本語・特殊文字対応）
-10. **カラーコード変換** (`tools/color-converter.html`) - HEX/RGB/HSL相互変換（カラーピッカー付き）
+10. **カラーコード変換** (`tools/color-converter.html`) - HEX/RGB/HSL相互変換
 
 ### 実装予定
 （随時追加）
@@ -124,3 +124,9 @@ aws cloudfront create-invalidation \
 - フッターナビゲーション改善:
   - `common.js`の`isInToolsDir()`でパス判定（ルート or tools/内）
   - 全ページからツール間・サイト情報ページへのナビゲーション可能に
+
+### 2026-04-19: ツール追加（10個達成）
+- 実装完了:
+  - QRコード生成 (`tools/qr-generator.html`) - qrcode-generator使用、PNG形式でダウンロード可能
+  - URLエンコーダー/デコーダー (`tools/url-encoder.html`) - 日本語・特殊文字対応
+  - カラーコード変換 (`tools/color-converter.html`) - HEX/RGB/HSL相互変換、カラーピッカー付き
