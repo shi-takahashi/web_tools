@@ -25,7 +25,8 @@
     ],
     '変換': [
       { name: '単位変換', file: 'unit-converter.html' },
-      { name: 'タイムスタンプ変換', file: 'timestamp.html' }
+      { name: 'タイムスタンプ変換', file: 'timestamp.html' },
+      { name: 'QRコード生成', file: 'qr-generator.html' }
     ],
     '開発者向け': [
       { name: 'JSON フォーマッター', file: 'json-formatter.html' }

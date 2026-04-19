@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="テキストやURLからQRコードを生成できるオンラインツール。PNG形式でダウンロード可能。">
+  <meta name="keywords" content="QRコード,生成,作成,オンラインツール,無料">
+  <title>QRコード生成 - Web Tools</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    .tool-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
+
+    @media (max-width: 768px) {
+      .tool-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .panel__title {
+      font-weight: 500;
+    }
+
+    .panel__textarea {
+      min-height: 150px;
+      font-family: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, monospace;
+      font-size: 0.875rem;
+      line-height: 1.5;
+      resize: vertical;
+    }
+
+    .options-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .options-group label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+    }
+
+    .options-group select,
+    .options-group input[type="number"] {
+      padding: 0.25rem 0.5rem;
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      background-color: var(--color-bg-primary);
+      color: var(--color-text-primary);
+      font-size: 0.875rem;
+    }
+
+    .qr-output {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 300px;
+      background-color: var(--color-bg-secondary);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      padding: 1.5rem;
+    }
+
+    .qr-output canvas {
+      background-color: white;
+      border-radius: 4px;
+    }
+
+    .qr-placeholder {
+      color: var(--color-text-secondary);
+      text-align: center;
+    }
+
+    .status {
+      padding: 0.5rem 0.75rem;
+      border-radius: 4px;
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+    }
+
+    .status--success {
+      background-color: rgba(34, 197, 94, 0.1);
+      color: var(--color-success);
+    }
+
+    .status--error {
+      background-color: rgba(239, 68, 68, 0.1);
+      color: var(--color-error);
+    }
+
+    .status--info {
+      background-color: var(--color-bg-secondary);
+      color: var(--color-text-secondary);
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container header__inner">
+      <a href="/" class="header__logo">Web Tools</a>
+      <nav class="header__nav" aria-label="メインナビゲーション">
+        <a href="/">ホーム</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="container">
+      <div class="tool-header">
+        <h1 class="tool-header__title">QRコード生成</h1>
+        <p class="tool-header__description">テキストやURLからQRコードを生成できます。PNG形式でダウンロード可能。</p>
+      </div>
+
+      <div class="btn-group mb-2">
+        <button type="button" class="btn btn--primary" id="generateBtn">生成</button>
+        <button type="button" class="btn btn--secondary" id="downloadBtn">ダウンロード</button>
+        <button type="button" class="btn btn--secondary" id="clearBtn">クリア</button>
+      </div>
+
+      <div class="tool-layout">
+        <div class="panel">
+          <div class="panel__header">
+            <span class="panel__title">テキスト / URL</span>
+          </div>
+          <textarea
+            id="textInput"
+            class="form-textarea panel__textarea"
+            placeholder="QRコードにしたいテキストやURLを入力..."
+            aria-label="テキスト入力"
+          ></textarea>
+
+          <div class="options-group">
+            <label>
+              サイズ:
+              <select id="sizeSelect">
+                <option value="4">小 (132px)</option>
+                <option value="6" selected>中 (198px)</option>
+                <option value="8">大 (264px)</option>
+                <option value="10">特大 (330px)</option>
+              </select>
+            </label>
+            <label>
+              誤り訂正:
+              <select id="errorCorrectionSelect">
+                <option value="L">L (7%)</option>
+                <option value="M" selected>M (15%)</option>
+                <option value="Q">Q (25%)</option>
+                <option value="H">H (30%)</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel__header">
+            <span class="panel__title">QRコード</span>
+          </div>
+          <div class="qr-output" id="qrOutput">
+            <div class="qr-placeholder">テキストを入力して「生成」をクリック</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="status" class="status status--info">テキストやURLを入力してQRコードを生成</div>
+
+      <section class="mt-3">
+        <h2 class="mb-1">使い方</h2>
+        <ul>
+          <li><strong>生成:</strong> テキストやURLを入力 →「生成」→ QRコードが表示</li>
+          <li><strong>サイズ:</strong> QRコードの大きさを選択（小〜特大）</li>
+          <li><strong>誤り訂正:</strong> 高いほど汚れに強いがデータ量が増える</li>
+          <li><strong>ダウンロード:</strong> PNG形式で保存</li>
+        </ul>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container"></div>
+  </footer>
+
+  <!-- QR Code Generator Library (MIT License) - https://github.com/kazuhikoarase/qrcode-generator -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+
+  <script>
+    const textInput = document.getElementById('textInput');
+    const qrOutput = document.getElementById('qrOutput');
+    const status = document.getElementById('status');
+    const generateBtn = document.getElementById('generateBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const sizeSelect = document.getElementById('sizeSelect');
+    const errorCorrectionSelect = document.getElementById('errorCorrectionSelect');
+
+    let currentCanvas = null;
+
+    function setStatus(type, message) {
+      status.className = 'status';
+      if (type === 'success') {
+        status.classList.add('status--success');
+      } else if (type === 'error') {
+        status.classList.add('status--error');
+      } else {
+        status.classList.add('status--info');
+      }
+      status.textContent = message;
+    }
+
+    function generateQR() {
+      const text = textInput.value;
+
+      if (!text.trim()) {
+        setStatus('info', 'テキストやURLを入力してください');
+        return;
+      }
+
+      try {
+        const cellSize = parseInt(sizeSelect.value, 10);
+        const errorCorrection = errorCorrectionSelect.value;
+
+        // Type 0 = auto detect
+        const qr = qrcode(0, errorCorrection);
+        qr.addData(text);
+        qr.make();
+
+        const moduleCount = qr.getModuleCount();
+        const margin = cellSize * 2;
+        const size = moduleCount * cellSize + margin * 2;
+
+        const canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+
+        // 背景を白で塗りつぶす
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, size, size);
+
+        // QRコードを描画
+        ctx.fillStyle = '#000000';
+        for (let row = 0; row < moduleCount; row++) {
+          for (let col = 0; col < moduleCount; col++) {
+            if (qr.isDark(row, col)) {
+              ctx.fillRect(
+                col * cellSize + margin,
+                row * cellSize + margin,
+                cellSize,
+                cellSize
+              );
+            }
+          }
+        }
+
+        currentCanvas = canvas;
+
+        qrOutput.innerHTML = '';
+        qrOutput.appendChild(canvas);
+
+        setStatus('success', 'QRコードを生成しました');
+      } catch (e) {
+        setStatus('error', 'エラー: ' + e);
+        currentCanvas = null;
+      }
+    }
+
+    function downloadQR() {
+      if (!currentCanvas) {
+        setStatus('info', 'まずQRコードを生成してください');
+        return;
+      }
+
+      try {
+        const link = document.createElement('a');
+        link.download = 'qrcode.png';
+        link.href = currentCanvas.toDataURL('image/png');
+        link.click();
+        setStatus('success', 'ダウンロードを開始しました');
+      } catch (e) {
+        setStatus('error', 'ダウンロードに失敗しました');
+      }
+    }
+
+    function clearAll() {
+      textInput.value = '';
+      qrOutput.innerHTML = '<div class="qr-placeholder">テキストを入力して「生成」をクリック</div>';
+      currentCanvas = null;
+      setStatus('info', 'テキストやURLを入力してQRコードを生成');
+    }
+
+    // Event listeners
+    generateBtn.addEventListener('click', generateQR);
+    downloadBtn.addEventListener('click', downloadQR);
+    clearBtn.addEventListener('click', clearAll);
+
+    // Generate on Enter key
+    textInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        generateQR();
+      }
+    });
+  </script>
+  <script src="../js/common.js"></script>
+</body>
+</html>

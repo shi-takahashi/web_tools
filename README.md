@@ -22,10 +22,14 @@
 ```
 /
 ├── index.html              # トップページ（ツール一覧）
+├── privacy.html            # プライバシーポリシー
+├── about.html              # 運営者情報・お問い合わせ
+├── sitemap.xml             # サイトマップ
+├── robots.txt              # クローラー設定
 ├── css/
 │   └── styles.css          # 共通スタイル
 ├── js/
-│   └── common.js           # 共通JavaScript（必要に応じて）
+│   └── common.js           # 共通JavaScript
 ├── tools/
 │   ├── json-formatter.html # JSONフォーマッター
 │   └── (今後追加)
@@ -42,6 +46,7 @@
 5. **画像フォーマット変換** (`tools/image-converter.html`) - PNG/JPEG/WebP/SVGの相互変換（品質調整可能）
 6. **画像リサイズ** (`tools/image-resizer.html`) - 画像の幅・高さを変更（アスペクト比維持対応）
 7. **単位変換** (`tools/unit-converter.html`) - 長さ・面積・体積・重さ・速度・温度の単位変換
+8. **QRコード生成** (`tools/qr-generator.html`) - テキストやURLからQRコードを生成（PNG形式でダウンロード可能）
 
 ### 実装予定
 （随時追加）
@@ -105,3 +110,15 @@ aws cloudfront create-invalidation \
   - 共通JS (`js/common.js`) - フッターナビゲーション動的生成、プライバシー説明、Google Analytics
   - SEO対策: sitemap.xml、robots.txt作成、Google Search Console登録
   - アクセス解析: Google Analytics (GA4) 導入
+
+### 2026-04-18: AdSense準備・ツール追加
+- 実装完了:
+  - タイムスタンプ変換 (`tools/timestamp.html`)
+  - 画像フォーマット変換 (`tools/image-converter.html`)
+  - 画像リサイズ (`tools/image-resizer.html`)
+  - 単位変換 (`tools/unit-converter.html`)
+  - プライバシーポリシー (`privacy.html`)
+  - 運営者情報 (`about.html`) - Googleフォームでお問い合わせ対応
+- フッターナビゲーション改善:
+  - `common.js`の`isInToolsDir()`でパス判定（ルート or tools/内）
+  - 全ページからツール間・サイト情報ページへのナビゲーション可能に
