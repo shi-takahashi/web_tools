@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="HEX、RGB、HSL形式のカラーコードを相互変換できるオンラインツール。カラーピッカー付き。">
+  <meta name="keywords" content="カラーコード,色変換,HEX,RGB,HSL,カラーピッカー,オンラインツール">
+  <title>カラーコード変換 - Web Tools</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    .color-preview {
+      width: 100%;
+      height: 120px;
+      border-radius: 8px;
+      border: 1px solid var(--color-border);
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      font-weight: 500;
+      transition: background-color 0.2s;
+    }
+
+    .color-preview__text {
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 0.25rem 0.75rem;
+      border-radius: 4px;
+      color: #333;
+    }
+
+    .color-inputs {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .color-input-group {
+      background-color: var(--color-bg-secondary);
+      padding: 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--color-border);
+    }
+
+    .color-input-group__title {
+      font-weight: 500;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .color-input-group__fields {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .color-input-group__field {
+      flex: 1;
+    }
+
+    .color-input-group__field label {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--color-text-secondary);
+      margin-bottom: 0.25rem;
+    }
+
+    .color-input-group__field input {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      background-color: var(--color-bg-primary);
+      color: var(--color-text-primary);
+      font-family: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, monospace;
+      font-size: 0.875rem;
+    }
+
+    .hex-input-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .hex-input-wrapper input[type="text"] {
+      flex: 1;
+    }
+
+    .color-picker {
+      width: 40px;
+      height: 38px;
+      padding: 0;
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      cursor: pointer;
+      background: none;
+    }
+
+    .color-picker::-webkit-color-swatch-wrapper {
+      padding: 2px;
+    }
+
+    .color-picker::-webkit-color-swatch {
+      border: none;
+      border-radius: 2px;
+    }
+
+    .copy-btn {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.75rem;
+    }
+
+    .status {
+      padding: 0.5rem 0.75rem;
+      border-radius: 4px;
+      font-size: 0.875rem;
+      margin-top: 1rem;
+    }
+
+    .status--success {
+      background-color: rgba(34, 197, 94, 0.1);
+      color: var(--color-success);
+    }
+
+    .status--error {
+      background-color: rgba(239, 68, 68, 0.1);
+      color: var(--color-error);
+    }
+
+    .status--info {
+      background-color: var(--color-bg-secondary);
+      color: var(--color-text-secondary);
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container header__inner">
+      <a href="/" class="header__logo">Web Tools</a>
+      <nav class="header__nav" aria-label="メインナビゲーション">
+        <a href="/">ホーム</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="container">
+      <div class="tool-header">
+        <h1 class="tool-header__title">カラーコード変換</h1>
+        <p class="tool-header__description">HEX、RGB、HSL形式のカラーコードを相互変換できます。</p>
+      </div>
+
+      <div class="color-preview" id="colorPreview" style="background-color: #3b82f6;">
+        <span class="color-preview__text">#3B82F6</span>
+      </div>
+
+      <div class="color-inputs">
+        <div class="color-input-group">
+          <div class="color-input-group__title">
+            HEX
+            <button type="button" class="btn btn--secondary copy-btn" data-copy="hex">コピー</button>
+          </div>
+          <div class="hex-input-wrapper">
+            <input type="color" id="colorPicker" class="color-picker" value="#3b82f6">
+            <input type="text" id="hexInput" value="#3B82F6" placeholder="#000000">
+          </div>
+        </div>
+
+        <div class="color-input-group">
+          <div class="color-input-group__title">
+            RGB
+            <button type="button" class="btn btn--secondary copy-btn" data-copy="rgb">コピー</button>
+          </div>
+          <div class="color-input-group__fields">
+            <div class="color-input-group__field">
+              <label>R</label>
+              <input type="number" id="rInput" min="0" max="255" value="59">
+            </div>
+            <div class="color-input-group__field">
+              <label>G</label>
+              <input type="number" id="gInput" min="0" max="255" value="130">
+            </div>
+            <div class="color-input-group__field">
+              <label>B</label>
+              <input type="number" id="bInput" min="0" max="255" value="246">
+            </div>
+          </div>
+        </div>
+
+        <div class="color-input-group">
+          <div class="color-input-group__title">
+            HSL
+            <button type="button" class="btn btn--secondary copy-btn" data-copy="hsl">コピー</button>
+          </div>
+          <div class="color-input-group__fields">
+            <div class="color-input-group__field">
+              <label>H</label>
+              <input type="number" id="hInput" min="0" max="360" value="217">
+            </div>
+            <div class="color-input-group__field">
+              <label>S%</label>
+              <input type="number" id="sInput" min="0" max="100" value="91">
+            </div>
+            <div class="color-input-group__field">
+              <label>L%</label>
+              <input type="number" id="lInput" min="0" max="100" value="60">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="status" class="status status--info">色を変更すると自動で変換されます</div>
+
+      <section class="mt-3">
+        <h2 class="mb-1">使い方</h2>
+        <ul>
+          <li><strong>カラーピッカー:</strong> HEX欄の色付きボタンをクリックして選択</li>
+          <li><strong>HEX:</strong> #から始まる6桁の16進数（例: #FF5733）</li>
+          <li><strong>RGB:</strong> R, G, B各0〜255の値</li>
+          <li><strong>HSL:</strong> H:0〜360°, S:0〜100%, L:0〜100%</li>
+        </ul>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container"></div>
+  </footer>
+
+  <script>
+    const colorPreview = document.getElementById('colorPreview');
+    const colorPicker = document.getElementById('colorPicker');
+    const hexInput = document.getElementById('hexInput');
+    const rInput = document.getElementById('rInput');
+    const gInput = document.getElementById('gInput');
+    const bInput = document.getElementById('bInput');
+    const hInput = document.getElementById('hInput');
+    const sInput = document.getElementById('sInput');
+    const lInput = document.getElementById('lInput');
+    const status = document.getElementById('status');
+
+    function setStatus(type, message) {
+      status.className = 'status';
+      status.classList.add('status--' + type);
+      status.textContent = message;
+    }
+
+    // 変換関数
+    function hexToRgb(hex) {
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+      } : null;
+    }
+
+    function rgbToHex(r, g, b) {
+      return '#' + [r, g, b].map(x => {
+        const hex = Math.max(0, Math.min(255, Math.round(x))).toString(16);
+        return hex.length === 1 ? '0' + hex : hex;
+      }).join('').toUpperCase();
+    }
+
+    function rgbToHsl(r, g, b) {
+      r /= 255; g /= 255; b /= 255;
+      const max = Math.max(r, g, b), min = Math.min(r, g, b);
+      let h, s, l = (max + min) / 2;
+
+      if (max === min) {
+        h = s = 0;
+      } else {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+          case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+          case g: h = ((b - r) / d + 2) / 6; break;
+          case b: h = ((r - g) / d + 4) / 6; break;
+        }
+      }
+
+      return {
+        h: Math.round(h * 360),
+        s: Math.round(s * 100),
+        l: Math.round(l * 100)
+      };
+    }
+
+    function hslToRgb(h, s, l) {
+      h /= 360; s /= 100; l /= 100;
+      let r, g, b;
+
+      if (s === 0) {
+        r = g = b = l;
+      } else {
+        const hue2rgb = (p, q, t) => {
+          if (t < 0) t += 1;
+          if (t > 1) t -= 1;
+          if (t < 1/6) return p + (q - p) * 6 * t;
+          if (t < 1/2) return q;
+          if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+          return p;
+        };
+        const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+        const p = 2 * l - q;
+        r = hue2rgb(p, q, h + 1/3);
+        g = hue2rgb(p, q, h);
+        b = hue2rgb(p, q, h - 1/3);
+      }
+
+      return {
+        r: Math.round(r * 255),
+        g: Math.round(g * 255),
+        b: Math.round(b * 255)
+      };
+    }
+
+    // UI更新
+    function updatePreview(hex) {
+      colorPreview.style.backgroundColor = hex;
+      colorPreview.querySelector('.color-preview__text').textContent = hex;
+    }
+
+    function updateFromHex(hex, updatePicker = true) {
+      const rgb = hexToRgb(hex);
+      if (!rgb) return false;
+
+      const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+
+      hexInput.value = hex.toUpperCase();
+      if (updatePicker) colorPicker.value = hex.toLowerCase();
+      rInput.value = rgb.r;
+      gInput.value = rgb.g;
+      bInput.value = rgb.b;
+      hInput.value = hsl.h;
+      sInput.value = hsl.s;
+      lInput.value = hsl.l;
+
+      updatePreview(hex.toUpperCase());
+      return true;
+    }
+
+    function updateFromRgb() {
+      const r = parseInt(rInput.value) || 0;
+      const g = parseInt(gInput.value) || 0;
+      const b = parseInt(bInput.value) || 0;
+
+      const hex = rgbToHex(r, g, b);
+      const hsl = rgbToHsl(r, g, b);
+
+      hexInput.value = hex;
+      colorPicker.value = hex.toLowerCase();
+      hInput.value = hsl.h;
+      sInput.value = hsl.s;
+      lInput.value = hsl.l;
+
+      updatePreview(hex);
+    }
+
+    function updateFromHsl() {
+      const h = parseInt(hInput.value) || 0;
+      const s = parseInt(sInput.value) || 0;
+      const l = parseInt(lInput.value) || 0;
+
+      const rgb = hslToRgb(h, s, l);
+      const hex = rgbToHex(rgb.r, rgb.g, rgb.b);
+
+      hexInput.value = hex;
+      colorPicker.value = hex.toLowerCase();
+      rInput.value = rgb.r;
+      gInput.value = rgb.g;
+      bInput.value = rgb.b;
+
+      updatePreview(hex);
+    }
+
+    // イベントリスナー
+    colorPicker.addEventListener('input', (e) => {
+      updateFromHex(e.target.value, false);
+    });
+
+    hexInput.addEventListener('input', (e) => {
+      let value = e.target.value.trim();
+      if (!value.startsWith('#')) value = '#' + value;
+      if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
+        updateFromHex(value);
+      }
+    });
+
+    [rInput, gInput, bInput].forEach(input => {
+      input.addEventListener('input', updateFromRgb);
+    });
+
+    [hInput, sInput, lInput].forEach(input => {
+      input.addEventListener('input', updateFromHsl);
+    });
+
+    // コピー機能
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const type = btn.dataset.copy;
+        let text;
+
+        switch (type) {
+          case 'hex':
+            text = hexInput.value;
+            break;
+          case 'rgb':
+            text = `rgb(${rInput.value}, ${gInput.value}, ${bInput.value})`;
+            break;
+          case 'hsl':
+            text = `hsl(${hInput.value}, ${sInput.value}%, ${lInput.value}%)`;
+            break;
+        }
+
+        try {
+          await navigator.clipboard.writeText(text);
+          setStatus('success', `${text} をコピーしました`);
+        } catch (e) {
+          setStatus('error', 'コピーに失敗しました');
+        }
+      });
+    });
+  </script>
+  <script src="../js/common.js"></script>
+</body>
+</html>

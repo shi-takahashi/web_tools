@@ -48,6 +48,7 @@
 7. **単位変換** (`tools/unit-converter.html`) - 長さ・面積・体積・重さ・速度・温度の単位変換
 8. **QRコード生成** (`tools/qr-generator.html`) - テキストやURLからQRコードを生成（PNG形式でダウンロード可能）
 9. **URLエンコーダー/デコーダー** (`tools/url-encoder.html`) - URLエンコード・デコード（日本語・特殊文字対応）
+10. **カラーコード変換** (`tools/color-converter.html`) - HEX/RGB/HSL相互変換（カラーピッカー付き）
 
 ### 実装予定
 （随時追加）
