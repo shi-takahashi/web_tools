@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="URLエンコード・デコードができるオンラインツール。日本語や特殊文字を%XX形式に変換。">
+  <meta name="keywords" content="URLエンコード,URLデコード,パーセントエンコーディング,変換,オンラインツール">
+  <title>URLエンコーダー/デコーダー - Web Tools</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    .tool-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .tool-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .panel__title {
+      font-weight: 500;
+    }
+
+    .panel__textarea {
+      flex: 1;
+      min-height: 300px;
+      font-family: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, monospace;
+      font-size: 0.875rem;
+      line-height: 1.5;
+      resize: vertical;
+    }
+
+    .status {
+      padding: 0.5rem 0.75rem;
+      border-radius: 4px;
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+    }
+
+    .status--success {
+      background-color: rgba(34, 197, 94, 0.1);
+      color: var(--color-success);
+    }
+
+    .status--error {
+      background-color: rgba(239, 68, 68, 0.1);
+      color: var(--color-error);
+    }
+
+    .status--info {
+      background-color: var(--color-bg-secondary);
+      color: var(--color-text-secondary);
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container header__inner">
+      <a href="/" class="header__logo">Web Tools</a>
+      <nav class="header__nav" aria-label="メインナビゲーション">
+        <a href="/">ホーム</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="container">
+      <div class="tool-header">
+        <h1 class="tool-header__title">URLエンコーダー/デコーダー</h1>
+        <p class="tool-header__description">URLエンコード・デコードができます。日本語や特殊文字を%XX形式に変換。</p>
+      </div>
+
+      <div class="btn-group mb-2">
+        <button type="button" class="btn btn--primary" id="encodeBtn">エンコード →</button>
+        <button type="button" class="btn btn--primary" id="decodeBtn">← デコード</button>
+        <button type="button" class="btn btn--secondary" id="copyInputBtn">入力をコピー</button>
+        <button type="button" class="btn btn--secondary" id="copyOutputBtn">出力をコピー</button>
+        <button type="button" class="btn btn--secondary" id="clearBtn">クリア</button>
+      </div>
+
+      <div class="tool-layout">
+        <div class="panel">
+          <div class="panel__header">
+            <span class="panel__title">テキスト</span>
+          </div>
+          <textarea
+            id="textInput"
+            class="form-textarea panel__textarea"
+            placeholder="ここにテキストを入力..."
+            aria-label="テキスト入力"
+          ></textarea>
+        </div>
+
+        <div class="panel">
+          <div class="panel__header">
+            <span class="panel__title">URLエンコード</span>
+          </div>
+          <textarea
+            id="encodedInput"
+            class="form-textarea panel__textarea"
+            placeholder="ここにURLエンコードされた文字列を入力..."
+            aria-label="URLエンコード入力"
+          ></textarea>
+        </div>
+      </div>
+
+      <div id="status" class="status status--info">テキストを入力して「エンコード」、またはURLエンコードを入力して「デコード」</div>
+
+      <section class="mt-3">
+        <h2 class="mb-1">使い方</h2>
+        <ul>
+          <li><strong>エンコード:</strong> 左側にテキストを入力 →「エンコード」→ 右側にURLエンコードが表示</li>
+          <li><strong>デコード:</strong> 右側にURLエンコードを入力 →「デコード」→ 左側にテキストが表示</li>
+        </ul>
+
+        <h2 class="mb-1 mt-2">URLエンコードとは</h2>
+        <p>URLで使用できない文字（日本語、スペース、記号など）を <code>%XX</code> 形式に変換する仕組みです。例えば「あ」は <code>%E3%81%82</code> になります。</p>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container"></div>
+  </footer>
+
+  <script>
+    const textInput = document.getElementById('textInput');
+    const encodedInput = document.getElementById('encodedInput');
+    const status = document.getElementById('status');
+    const encodeBtn = document.getElementById('encodeBtn');
+    const decodeBtn = document.getElementById('decodeBtn');
+    const copyInputBtn = document.getElementById('copyInputBtn');
+    const copyOutputBtn = document.getElementById('copyOutputBtn');
+    const clearBtn = document.getElementById('clearBtn');
+
+    function setStatus(type, message) {
+      status.className = 'status';
+      if (type === 'success') {
+        status.classList.add('status--success');
+      } else if (type === 'error') {
+        status.classList.add('status--error');
+      } else {
+        status.classList.add('status--info');
+      }
+      status.textContent = message;
+    }
+
+    function encodeURL() {
+      const text = textInput.value;
+
+      if (!text) {
+        setStatus('info', 'テキストを入力してください');
+        return;
+      }
+
+      try {
+        const encoded = encodeURIComponent(text);
+        encodedInput.value = encoded;
+        setStatus('success', 'エンコードしました');
+      } catch (e) {
+        setStatus('error', 'エンコードエラー: ' + e.message);
+      }
+    }
+
+    function decodeURL() {
+      const encoded = encodedInput.value.trim();
+
+      if (!encoded) {
+        setStatus('info', 'URLエンコードを入力してください');
+        return;
+      }
+
+      try {
+        const decoded = decodeURIComponent(encoded);
+        textInput.value = decoded;
+        setStatus('success', 'デコードしました');
+      } catch (e) {
+        setStatus('error', 'デコードエラー: 無効なURLエンコード文字列です');
+      }
+    }
+
+    async function copyToClipboard(text, label) {
+      if (!text) {
+        setStatus('info', 'コピーする内容がありません');
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(text);
+        setStatus('success', label + 'をコピーしました');
+      } catch (e) {
+        setStatus('error', 'コピーに失敗しました');
+      }
+    }
+
+    function clearAll() {
+      textInput.value = '';
+      encodedInput.value = '';
+      setStatus('info', 'テキストを入力して「エンコード」、またはURLエンコードを入力して「デコード」');
+    }
+
+    // イベントリスナー
+    encodeBtn.addEventListener('click', encodeURL);
+    decodeBtn.addEventListener('click', decodeURL);
+    copyInputBtn.addEventListener('click', () => copyToClipboard(textInput.value, 'テキスト'));
+    copyOutputBtn.addEventListener('click', () => copyToClipboard(encodedInput.value, 'URLエンコード'));
+    clearBtn.addEventListener('click', clearAll);
+  </script>
+  <script src="../js/common.js"></script>
+</body>
+</html>

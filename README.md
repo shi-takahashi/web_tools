@@ -47,6 +47,7 @@
 6. **画像リサイズ** (`tools/image-resizer.html`) - 画像の幅・高さを変更（アスペクト比維持対応）
 7. **単位変換** (`tools/unit-converter.html`) - 長さ・面積・体積・重さ・速度・温度の単位変換
 8. **QRコード生成** (`tools/qr-generator.html`) - テキストやURLからQRコードを生成（PNG形式でダウンロード可能）
+9. **URLエンコーダー/デコーダー** (`tools/url-encoder.html`) - URLエンコード・デコード（日本語・特殊文字対応）
 
 ### 実装予定
 （随時追加）

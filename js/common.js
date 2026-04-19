@@ -17,7 +17,8 @@
   const TOOLS = {
     'テキスト': [
       { name: '文字数カウンター', file: 'char-counter.html' },
-      { name: 'Base64 エンコーダー', file: 'base64.html' }
+      { name: 'Base64 エンコーダー', file: 'base64.html' },
+      { name: 'URLエンコーダー', file: 'url-encoder.html' }
     ],
     '画像': [
       { name: '画像フォーマット変換', file: 'image-converter.html' },
