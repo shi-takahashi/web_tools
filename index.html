@@ -3,88 +3,96 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="便利なWebツール集。JSONフォーマッター、Base64エンコーダー、文字数カウンターなど、無料で使えるオンラインツールを提供しています。">
-  <meta name="keywords" content="Webツール,JSONフォーマッター,Base64,オンラインツール,便利ツール">
-  <title>Web Tools - 便利なオンラインツール集</title>
-  <link rel="stylesheet" href="css/styles.css">
+  <meta name="description" content="tak-labs のポータルページ。WebToolsをはじめとした各種コンテンツへのリンク集です。">
+  <title>tak-labs</title>
+  <style>
+    :root {
+      --color-bg: #ffffff;
+      --color-bg-secondary: #f5f5f5;
+      --color-text: #333333;
+      --color-text-secondary: #666666;
+      --color-primary: #2563eb;
+      --color-primary-hover: #1d4ed8;
+      --color-border: #e0e0e0;
+      --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      --radius: 8px;
+      --transition: 0.2s ease;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --color-bg: #1a1a1a;
+        --color-bg-secondary: #2d2d2d;
+        --color-text: #e0e0e0;
+        --color-text-secondary: #a0a0a0;
+        --color-primary: #3b82f6;
+        --color-primary-hover: #60a5fa;
+        --color-border: #404040;
+        --shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      }
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    a { color: var(--color-primary); text-decoration: none; transition: color var(--transition); }
+    a:hover { color: var(--color-primary-hover); }
+    .container { max-width: 960px; margin: 0 auto; padding: 0 1rem; }
+    .hero { padding: 4rem 0 2rem; text-align: center; }
+    .hero__title { font-size: 2.25rem; font-weight: bold; margin-bottom: 0.5rem; }
+    .hero__lead { color: var(--color-text-secondary); }
+    .main { padding: 1rem 0 3rem; }
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+    .card {
+      display: block;
+      background-color: var(--color-bg-secondary);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      transition: box-shadow var(--transition), transform var(--transition);
+    }
+    .card:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
+    .card__title { font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--color-text); }
+    .card__description { color: var(--color-text-secondary); font-size: 0.9rem; }
+    .footer {
+      background-color: var(--color-bg-secondary);
+      border-top: 1px solid var(--color-border);
+      padding: 1.5rem 0;
+      color: var(--color-text-secondary);
+      font-size: 0.875rem;
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
-  <header class="header">
-    <div class="container header__inner">
-      <a href="/" class="header__logo">Web Tools</a>
-      <nav class="header__nav" aria-label="メインナビゲーション">
-        <a href="/">ホーム</a>
-      </nav>
+  <header class="hero">
+    <div class="container">
+      <h1 class="hero__title">tak-labs</h1>
+      <p class="hero__lead">各種コンテンツへのリンク集です。</p>
     </div>
   </header>
 
   <main class="main">
     <div class="container">
-      <section class="mb-3">
-        <h1 class="mb-2">便利なオンラインツール集</h1>
-        <p class="mb-3">無料で使えるオンラインツールを提供しています。登録不要、すぐに使えます。</p>
-      </section>
-
-      <section>
-        <h2 class="mb-2">ツール一覧</h2>
-        <div class="tool-grid">
-          <a href="tools/json-formatter.html" class="tool-card">
-            <h3 class="tool-card__title">JSON フォーマッター</h3>
-            <p class="tool-card__description">JSONの整形・検証・圧縮ができるツール。シンタックスエラーの検出も可能です。</p>
-          </a>
-
-          <a href="tools/base64.html" class="tool-card">
-            <h3 class="tool-card__title">Base64 エンコーダー</h3>
-            <p class="tool-card__description">テキストをBase64形式にエンコード・デコードするツール。日本語対応。</p>
-          </a>
-
-          <a href="tools/char-counter.html" class="tool-card">
-            <h3 class="tool-card__title">文字数カウンター</h3>
-            <p class="tool-card__description">テキストの文字数、行数、バイト数をリアルタイムでカウント。</p>
-          </a>
-
-          <a href="tools/timestamp.html" class="tool-card">
-            <h3 class="tool-card__title">タイムスタンプ変換</h3>
-            <p class="tool-card__description">Unixタイムスタンプと日時を相互変換。秒・ミリ秒対応。</p>
-          </a>
-
-          <a href="tools/image-converter.html" class="tool-card">
-            <h3 class="tool-card__title">画像フォーマット変換</h3>
-            <p class="tool-card__description">PNG、JPEG、WebP、SVG画像を相互変換。品質調整可能。</p>
-          </a>
-
-          <a href="tools/image-resizer.html" class="tool-card">
-            <h3 class="tool-card__title">画像リサイズ</h3>
-            <p class="tool-card__description">画像の幅・高さを変更。アスペクト比維持、拡大・縮小対応。</p>
-          </a>
-
-          <a href="tools/unit-converter.html" class="tool-card">
-            <h3 class="tool-card__title">単位変換</h3>
-            <p class="tool-card__description">長さ、面積、体積、重さ、速度、温度などの単位を変換。</p>
-          </a>
-
-          <a href="tools/qr-generator.html" class="tool-card">
-            <h3 class="tool-card__title">QRコード生成</h3>
-            <p class="tool-card__description">テキストやURLからQRコードを生成。PNG形式でダウンロード可能。</p>
-          </a>
-
-          <a href="tools/url-encoder.html" class="tool-card">
-            <h3 class="tool-card__title">URLエンコーダー</h3>
-            <p class="tool-card__description">URLエンコード・デコード。日本語や特殊文字を%XX形式に変換。</p>
-          </a>
-
-          <a href="tools/color-converter.html" class="tool-card">
-            <h3 class="tool-card__title">カラーコード変換</h3>
-            <p class="tool-card__description">HEX、RGB、HSL形式のカラーコードを相互変換。</p>
-          </a>
-        </div>
-      </section>
+      <div class="card-grid">
+        <a href="/web-tools/" class="card">
+          <h2 class="card__title">Web Tools</h2>
+          <p class="card__description">JSONフォーマッター、Base64、QRコード生成など、無料で使えるオンラインツール集。</p>
+        </a>
+      </div>
     </div>
   </main>
 
   <footer class="footer">
-    <div class="container"></div>
+    <div class="container">&copy; 2026 tak-labs. All rights reserved.</div>
   </footer>
-  <script src="js/common.js"></script>
 </body>
 </html>

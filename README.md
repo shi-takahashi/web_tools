@@ -21,48 +21,52 @@
 
 ```
 /
-├── index.html              # トップページ（ツール一覧）
-├── privacy.html            # プライバシーポリシー
-├── about.html              # 運営者情報・お問い合わせ
+├── index.html              # ポータルトップ（/）— 各コンテンツへのリンク集
 ├── sitemap.xml             # サイトマップ
 ├── robots.txt              # クローラー設定
-├── css/
-│   └── styles.css          # 共通スタイル
-├── js/
-│   └── common.js           # 共通JavaScript
-├── tools/
-│   ├── json-formatter.html # JSONフォーマッター
-│   └── (今後追加)
+├── web-tools/              # Web Tools（/web-tools/）
+│   ├── index.html          # Web Tools トップ（ツール一覧）
+│   ├── json-formatter.html # 各ツール（直下にフラット配置）
+│   ├── ...                  # base64.html, qr-generator.html など
+│   ├── privacy.html        # プライバシーポリシー
+│   ├── about.html          # 運営者情報・お問い合わせ
+│   ├── css/
+│   │   └── styles.css      # 共通スタイル
+│   └── js/
+│       └── common.js       # 共通JavaScript
 └── README.md               # このファイル
 ```
+
+ルート直下（`/`）はポータルページで、`/web-tools/` 以下に Web Tools 一式を配置している。
+今後追加する別コンテンツも `/<name>/` のサブディレクトリとして並べ、ルートのポータルからリンクする。
 
 ## ツール一覧
 
 ### 実装済み
-1. **JSONフォーマッター** (`tools/json-formatter.html`) - JSONの整形・検証・圧縮ツール
-2. **Base64エンコーダー/デコーダー** (`tools/base64.html`) - テキストのBase64エンコード・デコード（日本語対応）
-3. **文字数カウンター** (`tools/char-counter.html`) - 文字数・行数・バイト数をリアルタイムカウント
-4. **タイムスタンプ変換** (`tools/timestamp.html`) - Unixタイムスタンプと日時の相互変換（秒・ミリ秒対応）
-5. **画像フォーマット変換** (`tools/image-converter.html`) - PNG/JPEG/WebP/SVGの相互変換（品質調整可能）
-6. **画像リサイズ** (`tools/image-resizer.html`) - 画像の幅・高さを変更（アスペクト比維持対応）
-7. **単位変換** (`tools/unit-converter.html`) - 長さ・面積・体積・重さ・速度・温度の単位変換
-8. **QRコード生成** (`tools/qr-generator.html`) - テキストやURLからQRコードを生成（PNG形式でダウンロード可能）
-9. **URLエンコーダー/デコーダー** (`tools/url-encoder.html`) - URLエンコード・デコード（日本語・特殊文字対応）
-10. **カラーコード変換** (`tools/color-converter.html`) - HEX/RGB/HSL相互変換
+1. **JSONフォーマッター** (`web-tools/json-formatter.html`) - JSONの整形・検証・圧縮ツール
+2. **Base64エンコーダー/デコーダー** (`web-tools/base64.html`) - テキストのBase64エンコード・デコード（日本語対応）
+3. **文字数カウンター** (`web-tools/char-counter.html`) - 文字数・行数・バイト数をリアルタイムカウント
+4. **タイムスタンプ変換** (`web-tools/timestamp.html`) - Unixタイムスタンプと日時の相互変換（秒・ミリ秒対応）
+5. **画像フォーマット変換** (`web-tools/image-converter.html`) - PNG/JPEG/WebP/SVGの相互変換（品質調整可能）
+6. **画像リサイズ** (`web-tools/image-resizer.html`) - 画像の幅・高さを変更（アスペクト比維持対応）
+7. **単位変換** (`web-tools/unit-converter.html`) - 長さ・面積・体積・重さ・速度・温度の単位変換
+8. **QRコード生成** (`web-tools/qr-generator.html`) - テキストやURLからQRコードを生成（PNG形式でダウンロード可能）
+9. **URLエンコーダー/デコーダー** (`web-tools/url-encoder.html`) - URLエンコード・デコード（日本語・特殊文字対応）
+10. **カラーコード変換** (`web-tools/color-converter.html`) - HEX/RGB/HSL相互変換
 
 ### 実装予定
 （随時追加）
 
 ## 新しいツールを追加する手順
 
-1. `tools/` ディレクトリに新しいHTMLファイルを作成
-2. 共通CSSを読み込む: `<link rel="stylesheet" href="../css/styles.css">`
-3. 共通JSを読み込む: `<script src="../js/common.js"></script>`（`</body>`の前に）
+1. `web-tools/` ディレクトリに新しいHTMLファイルを作成（ツールは直下にフラット配置）
+2. 共通CSSを読み込む: `<link rel="stylesheet" href="css/styles.css">`
+3. 共通JSを読み込む: `<script src="js/common.js"></script>`（`</body>`の前に）
 4. フッターは空の要素だけ配置: `<footer class="footer"><div class="container"></div></footer>`
 5. SEO用のmeta タグを設定（title, description, keywords）
-6. `index.html` のツール一覧に追加
-7. `js/common.js` の `TOOLS` オブジェクトに追加（フッターナビゲーションに反映される）
-8. `sitemap.xml` に新しいURLを追加
+6. `web-tools/index.html` のツール一覧に追加
+7. `web-tools/js/common.js` の `TOOLS` オブジェクトに追加（フッターナビゲーションに反映される）
+8. `sitemap.xml` に新しいURL（`/web-tools/...`）を追加
 9. このREADMEの「実装済み」セクションを更新
 
 ## 共通デザインガイドライン
